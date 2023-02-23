@@ -1,4 +1,4 @@
-package scalefocus.blogapp.repository;
+package scalefocus.blogapp.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,18 +16,16 @@ import scalefocus.blogapp.entities.BlogUser;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class TestBlogJPARepository {
+class TestBlogServiceIntegration {
 
 	@Autowired
-	private BlogJPARepository repository;
+	private BlogService blogService;
 
 	@Test
-	void testInitialData() {
-		Optional<Blog> actual =repository.findById(1l);
-		Blog expectedValue = Blog.createBlog(new BlogUser(),"None","None" );
-		expectedValue.setId(1l);
-		assertThat(actual).hasValue(expectedValue);
-		assertThat(actual.get().getCreatedBy().getId()).isSameAs(1l);
+	void createUser_shouldReturnObject() {
+		Blog createdBlog = blogService.createBlog("aliveli", "title_test", "body_test");
+
+		assertThat(createdBlog).hasFieldOrPropertyWithValue("id", 2l); // implies "data" was persisted
 	}
 
 }

@@ -22,9 +22,9 @@ public class BlogUser {
 	@Column(name = "surname")
 	private String surname;
 
-	@Column(name = "username")
+	@Column(name = "username", unique = true)
 	private String username;
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -58,8 +58,8 @@ public class BlogUser {
 	}
 
 	public BlogUser() {
-	} 
-	
+	}
+
 	public BlogUser(long id, String name, String surname, String username) {
 		this.id = id;
 		this.name = name;
@@ -76,13 +76,11 @@ public class BlogUser {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
+		if ((obj == null) || (getClass() != obj.getClass()))
 			return false;
 		BlogUser other = (BlogUser) obj;
 		return Objects.equals(id, other.id);
 	}
 
-	
+
 }
