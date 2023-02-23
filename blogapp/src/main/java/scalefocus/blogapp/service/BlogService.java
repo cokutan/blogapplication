@@ -1,8 +1,11 @@
 package scalefocus.blogapp.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import scalefocus.blogapp.dto.BlogSummary;
 import scalefocus.blogapp.entities.Blog;
 import scalefocus.blogapp.entities.BlogUser;
 import scalefocus.blogapp.repository.BlogJPARepository;
@@ -21,4 +24,10 @@ public class BlogService {
 		Blog blog = Blog.createBlog(blogUser, title, body);
 		return blogJPARepository.save(blog);
 	}
+	
+	public List<BlogSummary> getBlogSummaryListForUser(String username) {
+		BlogUser blogUser = blogUserRepository.findFirstByUsername(username);
+		return blogJPARepository.findBlogSummaryByUser(blogUser.getId());
+	}
+	
 }
