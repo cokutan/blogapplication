@@ -10,13 +10,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class BlogTag {
+public class BlogTag implements BlogAppEntity{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	@Column(name = "tag")
+	@Column(name = "tag", unique = true, nullable = false)
 	private String tag;
 
 	public BlogTag() {

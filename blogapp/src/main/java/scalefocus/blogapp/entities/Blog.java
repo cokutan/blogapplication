@@ -1,5 +1,6 @@
 package scalefocus.blogapp.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,7 +17,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class Blog {
+public class Blog implements BlogAppEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,9 +33,9 @@ public class Blog {
 	@ManyToOne(cascade = CascadeType.ALL, targetEntity = BlogUser.class)
 	private BlogUser createdBy;
 
-	@ManyToMany
+	@ManyToMany( cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
 	@JoinTable(name = "BLOG_TAG_MM", joinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog"), name = "BLOG_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog_tag"), name = "BLOG_TAG_ID", referencedColumnName = "ID"))
-	private List<BlogTag> blogtags;
+	private List<BlogTag> blogtags = new ArrayList<>();
 
 	public Blog() {
 	}

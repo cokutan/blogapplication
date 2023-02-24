@@ -10,7 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class BlogUser {
+public class BlogUser implements BlogAppEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
