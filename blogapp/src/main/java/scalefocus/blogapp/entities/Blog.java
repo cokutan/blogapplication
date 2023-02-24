@@ -33,7 +33,7 @@ public class Blog implements BlogAppEntity {
 	@ManyToOne(cascade = CascadeType.ALL, targetEntity = BlogUser.class)
 	private BlogUser createdBy;
 
-	@ManyToMany( cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
+	@ManyToMany
 	@JoinTable(name = "BLOG_TAG_MM", joinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog"), name = "BLOG_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog_tag"), name = "BLOG_TAG_ID", referencedColumnName = "ID"))
 	private List<BlogTag> blogtags = new ArrayList<>();
 

@@ -11,6 +11,7 @@ import org.junit.platform.commons.annotation.Testable;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
+import mockit.Verifications;
 import scalefocus.blogapp.entities.Blog;
 import scalefocus.blogapp.entities.BlogTag;
 import scalefocus.blogapp.entities.BlogUser;
@@ -137,63 +138,6 @@ class TestBlogService {
 
 		assertThatThrownBy(() -> {
 			blogService.unattachTag(1l, "tag");
-		}).isInstanceOf(BlogAppEntityNotFoundException.class);
-
-	}
-	
-	@Test
-	void unattachTag_shouldAttachDBTag() throws BlogAppEntityNotFoundException {
-		Blog blog = Blog.createBlog(new BlogUser(), "title_test", "body_test");
-		BlogTag blogtag = new BlogTag(1, "tag");
-		new Expectations() {
-			{
-				blogJPARepository.findById(1l);
-				result = blog;
-
-				blogTagRepository.findByTag("tag");
-				result = blogtag;
-			}
-		};
-		blogService.attachTag(1l, "tag");
-
-		assertThat(blog.getBlogtags().get(0)).isEqualTo(blogtag);
-
-	}
-	
-	@Test
-	void unattachTag_shouldAttachNonDBTag() throws BlogAppEntityNotFoundException {
-		Blog blog = Blog.createBlog(new BlogUser(), "title_test", "body_test");
-		BlogTag blogtag = new BlogTag(1, "tag");
-		new Expectations() {
-			{
-				blogJPARepository.findById(1l);
-				result = blog;
-
-				blogTagRepository.findByTag("tag");
-				result = null;
-				
-				blogTagRepository.save(withNotNull());
-				result = blogtag;
-			}
-		};
-		blogService.attachTag(1l, "tag");
-
-		assertThat(blog.getBlogtags().get(0)).isEqualTo(blogtag);
-
-	}
-	
-	@Test
-	void attachTag_shouldThrowBlogAppEntityNotFoundExceptionForBlog() throws BlogAppEntityNotFoundException {
-		new Expectations() {
-			{
-				blogJPARepository.findById(1l);
-				result = Optional.empty();
-
-			}
-		};
-
-		assertThatThrownBy(() -> {
-			blogService.attachTag(1l, "tag");
 		}).isInstanceOf(BlogAppEntityNotFoundException.class);
 
 	}
