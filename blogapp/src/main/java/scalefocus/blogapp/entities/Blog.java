@@ -1,6 +1,5 @@
 package scalefocus.blogapp.entities;
 
-
 import java.util.List;
 import java.util.Objects;
 
@@ -29,17 +28,12 @@ public class Blog {
 	@Column(name = "body")
 	private String body;
 
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_blog_user"), nullable=false, name="created_by")
+	@JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_blog_user"), nullable = false, name = "created_by")
 	@ManyToOne(cascade = CascadeType.ALL, targetEntity = BlogUser.class)
 	private BlogUser createdBy;
 
 	@ManyToMany
-	 @JoinTable(name="BLOG_TAG_MM",
-     joinColumns=
-         @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog"), name="BLOG_ID", referencedColumnName="ID"),
-     inverseJoinColumns=
-         @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog_tag"), name="BLOG_TAG_ID", referencedColumnName="ID")
-     )
+	@JoinTable(name = "BLOG_TAG_MM", joinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog"), name = "BLOG_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog_tag"), name = "BLOG_TAG_ID", referencedColumnName = "ID"))
 	private List<BlogTag> blogtags;
 
 	public Blog() {
@@ -101,9 +95,15 @@ public class Blog {
 
 	public static Blog createBlog(BlogUser blogUser, String title, String body) {
 
-		return new Blog(0,title, body, blogUser);
+		return new Blog(0, title, body, blogUser);
 	}
 
+	public List<BlogTag> getBlogtags() {
+		return blogtags;
+	}
 
+	public void setBlogtags(List<BlogTag> blogtags) {
+		this.blogtags = blogtags;
+	}
 
 }

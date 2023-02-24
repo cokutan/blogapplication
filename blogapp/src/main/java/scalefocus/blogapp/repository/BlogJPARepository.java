@@ -19,4 +19,6 @@ public interface BlogJPARepository extends JpaRepository<Blog, Long> {
 			order by b.id
 			""")
 	List<BlogSummary> findBlogSummaryByUser(@Param("createdBy") Long createdBy);
+
+	List<Blog> findByBlogtags_Tag(String tag);
 }

@@ -1,7 +1,6 @@
 package scalefocus.blogapp.service;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,11 @@ public class BlogService {
 		BlogUser blogUser = blogUserRepository.findFirstByUsername(username);
 		return blogJPARepository.findBlogSummaryByUser(blogUser.getId());
 	}
-	
+
+	public List<Blog> getBlogsWithTag(String tag) {
+		return blogJPARepository.findByBlogtags_Tag(tag);
+	}
+
 	public Blog updateBlog(Long id, Blog blogData) throws BlogNotFoundException {
 		Blog blog = blogJPARepository.findById(id).orElseThrow(()->new BlogNotFoundException());
 		blog.setTitle(blogData.getTitle());
