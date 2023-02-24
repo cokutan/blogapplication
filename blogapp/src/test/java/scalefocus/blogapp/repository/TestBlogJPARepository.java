@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +39,6 @@ class TestBlogJPARepository {
 		BlogSummary blogSummary = actual.get(0);
 		assertThat(blogSummary.getShortSummary()).isEqualTo("Lorem ipsum dolor si");
 		assertThat(blogSummary.getTitle()).isEqualTo("Blogpost1");
-		
+
 	}
 }

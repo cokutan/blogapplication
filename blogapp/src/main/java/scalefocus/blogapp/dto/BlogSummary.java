@@ -2,9 +2,9 @@ package scalefocus.blogapp.dto;
 
 
 public class BlogSummary {
-	
+
 	private String title;
-	
+
 	private String shortSummary;
 
 	public BlogSummary(String title, String shortSummary) {
@@ -12,7 +12,7 @@ public class BlogSummary {
 		this.title = title;
 		this.shortSummary = shortSummary;
 	}
-	
+
 	public String getTitle() {
 		return title;
 	}
@@ -25,5 +25,5 @@ public class BlogSummary {
 	public void setShortSummary(String shortSummary) {
 		this.shortSummary = shortSummary;
 	}
-	
+
 }
