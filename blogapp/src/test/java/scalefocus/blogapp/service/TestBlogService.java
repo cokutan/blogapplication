@@ -85,6 +85,7 @@ class TestBlogService {
 		}).isInstanceOf(BlogAppEntityNotFoundException.class);
 
 	}
+	
 
 	@Test
 	void unattachTag_shouldUnattachTagFromList() throws BlogAppEntityNotFoundException {
