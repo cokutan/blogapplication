@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import scalefocus.blogapp.dto.BlogCreationDTO;
 import scalefocus.blogapp.dto.BlogSummary;
 import scalefocus.blogapp.entities.Blog;
 import scalefocus.blogapp.entities.BlogTag;
@@ -26,9 +27,9 @@ public class BlogService {
 	@Autowired
 	private BlogTagRepository blogTagRepository;
 
-	public Blog createBlog(String username, String title, String body) {
-		BlogUser blogUser = blogUserRepository.findFirstByUsername(username);
-		Blog blog = Blog.createBlog(blogUser, title, body);
+	public Blog createBlog(BlogCreationDTO blogCreationDTO) {
+		BlogUser blogUser = blogUserRepository.findFirstByUsername(blogCreationDTO.getUsername());
+		Blog blog = Blog.createBlog(blogUser, blogCreationDTO.getTitle(), blogCreationDTO.getBody());
 		return blogJPARepository.save(blog);
 	}
 

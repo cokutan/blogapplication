@@ -11,6 +11,7 @@ import org.junit.platform.commons.annotation.Testable;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
+import scalefocus.blogapp.dto.BlogCreationDTO;
 import scalefocus.blogapp.entities.Blog;
 import scalefocus.blogapp.entities.BlogTag;
 import scalefocus.blogapp.entities.BlogUser;
@@ -47,7 +48,7 @@ class TestBlogService {
 				result = new BlogUser();
 			}
 		};
-		Blog createdBlog = blogService.createBlog("aliveli", "title_test", "body_test");
+		Blog createdBlog = blogService.createBlog(new BlogCreationDTO("aliveli", "title_test", "body_test"));
 
 		assertThat(createdBlog).hasFieldOrPropertyWithValue("id", 2l); // implies "data" was persisted
 	}
