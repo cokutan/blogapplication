@@ -58,4 +58,14 @@ public class BlogService {
 
 		return;
 	}
+
+	public void attachTag(Long blogId, String tag) throws BlogAppEntityNotFoundException {
+		Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException());
+		BlogTag blogtag = Optional.ofNullable(blogTagRepository.findByTag(tag))
+				.orElse(blogTagRepository.save(new BlogTag(0, tag)));
+
+		blog.getBlogtags().add(blogtag);
+
+		return;
+	}
 }

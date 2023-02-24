@@ -8,5 +8,5 @@ import scalefocus.blogapp.entities.BlogTag;
 public interface BlogTagRepository extends JpaRepository<BlogTag, Id> {
 
 	BlogTag findByTag(String tag);
-	
+
 }
