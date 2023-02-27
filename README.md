@@ -1,9 +1,7 @@
 # How to Run Blog App
 1. Build the project with gradle task bootJar
 2. Just from the root directory of the project run command
-    ```bash
-docker-compose up -d
-```
+    ```docker-compose up -d```
 3. Then you can test the application using PostMan.
 
 
@@ -49,7 +47,7 @@ Get all blogs with given tag
 
 **Parameters**
 
-|          Name | Required |  Type   |                                                                                                                                              |
+|          Name | Required |  Type   |                               
 | -------------:|:--------:|:-------:| 
 |     `tag` | required | string  |
 
