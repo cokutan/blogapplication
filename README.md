@@ -189,4 +189,3 @@ Detach tag for blog post
 ```
 ___
 
-
