@@ -34,7 +34,7 @@ class TestBlogServiceIntegration {
 	private BlogTagRepository blogTagRepository;
 
 	@Test
-	void createBlog_shouldReturnCreatedBlogObject() {
+	void createBlog_shouldReturnCreatedBlogObject() throws BlogAppEntityNotFoundException {
 		Blog createdBlog = blogService.createBlog(new BlogCreationDTO("aliveli", "title_test", "body_test"));
 		Condition<Blog> idGiven = new Condition<>(t -> t.getId() != null && t.getId() != 0, "idGiven");
 
@@ -42,7 +42,7 @@ class TestBlogServiceIntegration {
 	}
 
 	@Test
-	void getBlogSummaryListForUser_shouldReturnSummaryListOfUSer() {
+	void getBlogSummaryListForUser_shouldReturnSummaryListOfUSer()  throws BlogAppEntityNotFoundException{
 		blogService.createBlog(new BlogCreationDTO("aliveli", "title_test",
 				"The following table lists the supported databases and their tested versions. ... Changing database locking timeout in a cluster configuration."));
 		blogService.createBlog(new BlogCreationDTO("aliveli", "title_test",

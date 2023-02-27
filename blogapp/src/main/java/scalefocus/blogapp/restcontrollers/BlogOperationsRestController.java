@@ -36,7 +36,10 @@ public class BlogOperationsRestController {
 			}
 
 			return new ResponseEntity<>(blogs, HttpStatus.OK);
+		} catch (BlogAppEntityNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -62,6 +65,8 @@ public class BlogOperationsRestController {
 			Blog blog = blogService.createBlog(blogCreationDTO);
 
 			return new ResponseEntity<>(blog, HttpStatus.OK);
+		} catch (BlogAppEntityNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -73,35 +78,35 @@ public class BlogOperationsRestController {
 			blog = blogService.updateBlog(id, blog);
 
 			return new ResponseEntity<>(blog, HttpStatus.OK);
-		}catch (BlogAppEntityNotFoundException e) {
+		} catch (BlogAppEntityNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		} 
+		}
 	}
-	
+
 	@PutMapping("/blogs/{id}/tags/{tag}")
 	public ResponseEntity<HttpStatus> attachTag(@PathVariable("id") Long id, @PathVariable("tag") String tag) {
 		try {
 			blogService.attachTag(id, tag);
 
 			return new ResponseEntity<>(HttpStatus.OK);
-		}catch (BlogAppEntityNotFoundException e) {
+		} catch (BlogAppEntityNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		} 
+		}
 	}
-	
+
 	@DeleteMapping("/blogs/{id}/tags/{tag}")
 	public ResponseEntity<HttpStatus> unattachTag(@PathVariable("id") Long id, @PathVariable("tag") String tag) {
 		try {
 			blogService.unattachTag(id, tag);
 			return new ResponseEntity<>(HttpStatus.OK);
-		}catch (BlogAppEntityNotFoundException e) {
+		} catch (BlogAppEntityNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		} 
+		}
 	}
 }

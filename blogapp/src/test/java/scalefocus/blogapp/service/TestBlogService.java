@@ -36,7 +36,7 @@ class TestBlogService {
 	BlogTagRepository blogTagRepository;
 
 	@Test
-	void createBlog_shouldReturnCreatedBlogObject() {
+	void createBlog_shouldReturnCreatedBlogObject() throws BlogAppEntityNotFoundException {
 		new Expectations() {
 			{
 				blogJPARepository.save(withNotNull());
@@ -59,9 +59,6 @@ class TestBlogService {
 		Blog initialBlog = Blog.createBlog(new BlogUser(), "a", "a");
 		new Expectations() {
 			{
-				blogJPARepository.save(withNotNull());
-				result = blog;
-
 				blogJPARepository.findById(1l);
 				result = initialBlog;
 			}
