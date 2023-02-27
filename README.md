@@ -1,7 +1,9 @@
 # How to Run Blog App
 1. Build the project with gradle task bootJar
 2. Just from the root directory of the project run command
-```docker-compose up -d```
+    ```bash
+docker-compose up -d
+```
 3. Then you can test the application using PostMan.
 
 
@@ -30,7 +32,7 @@ Get summary of blogs of a given username
 
 **Parameters**
 
-|          Name | Required |  Type   |                                                                                                                                              |
+|          Name | Required |  Type   |
 | -------------:|:--------:|:-------:| 
 |     `username` | required | string  |
 
@@ -61,13 +63,13 @@ ___
 Save the blog post
 
 **Parameters**
-
+```
 {
     "username" : "aliveli",
     "title" : "new",
     "body" : "new" 
 }
-
+```
 **Response**
 
 ```
@@ -96,7 +98,8 @@ Update title and body of the blog post
 |          Name | Required |  Type   |
 | -------------:|:--------:|:-------:| 
 |     `id` | required | string  |
-```{
+```json
+{
     "id": 1,
     "title": "newest",
     "body": "newest",
@@ -107,7 +110,8 @@ Update title and body of the blog post
         "username": "aliveli"
     },
     "blogtags": []
-}```
+}
+```
 
 **Response**
 
@@ -136,11 +140,14 @@ ___
 Attach tag to the blog post
 
 **Parameters**
-|          Name | Required |  Type   |                                                                                                                                              |
-| -------------:|:--------:|:-------:| 
+
+|          Name | Required |  Type   |
+| -------------:|:--------:|:-------:|
 |     `id` | required | string  |
 |     `tag`| required | string  |
-```{
+
+```json
+{
     "id": 1,
     "title": "newest",
     "body": "newest",
@@ -151,7 +158,8 @@ Attach tag to the blog post
         "username": "aliveli"
     },
     "blogtags": []
-}```
+}
+```
 
 **Response**
 
@@ -160,15 +168,19 @@ Attach tag to the blog post
 
 ```
 ___
+
 ### DELETE /blogs/{id}/tags/{tag}
 Detach tag for blog post
 
 **Parameters**
-|          Name | Required |  Type   |                                                                                                                                              |
+
+|          Name | Required |  Type   |
 | -------------:|:--------:|:-------:| 
 |     `id` | required | string  |
 |     `tag`| required | string  |
-```{
+
+```json
+{
     "id": 1,
     "title": "newest",
     "body": "newest",
@@ -179,8 +191,9 @@ Detach tag for blog post
         "username": "aliveli"
     },
     "blogtags": ["First Tag"]
-}```
+}
 
+```
 **Response**
 
 ```
