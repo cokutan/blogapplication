@@ -1,14 +1,14 @@
 INSERT INTO blog_user (id,name,surname,username) VALUES (1,'Ali','Veli','aliveli');
-insert into blog_user (id, name, surname) values (2, 'Wini', 'Ledwitch');
-insert into blog_user (id, name, surname) values (3, 'Sigismundo', 'Haddow');
-insert into blog_user (id, name, surname) values (4, 'Lotty', 'Zuan');
-insert into blog_user (id, name, surname) values (5, 'Claiborn', 'Stappard');
-insert into blog_user (id, name, surname) values (6, 'Erma', 'Straughan');
-insert into blog_user (id, name, surname) values (7, 'Siffre', 'Couper');
-insert into blog_user (id, name, surname) values (8, 'Tomasina', 'Brownscombe');
-insert into blog_user (id, name, surname) values (9, 'Jacky', 'Englefield');
-insert into blog_user (id, name, surname) values (10, 'Obidiah', 'Wooddisse');
-insert into blog_user (id, name, surname) values (11, 'Felike', 'Birkinshaw');
+insert into blog_user (id, name, surname,username) values (2, 'Wini', 'Ledwitch', 'Wini');
+insert into blog_user (id, name, surname,username) values (3, 'Sigismundo', 'Haddow','Sigismundo');
+insert into blog_user (id, name, surname,username) values (4, 'Lotty', 'Zuan', 'Zuan');
+insert into blog_user (id, name, surname,username) values (5, 'Claiborn', 'Stappard', 'Stappard');
+insert into blog_user (id, name, surname,username) values (6, 'Erma', 'Straughan','Straughan');
+insert into blog_user (id, name, surname,username) values (7, 'Siffre', 'Couper', 'Couper');
+insert into blog_user (id, name, surname,username) values (8, 'Tomasina', 'Brownscombe', 'Brownscombe');
+insert into blog_user (id, name, surname,username) values (9, 'Jacky', 'Englefield','Englefield');
+insert into blog_user (id, name, surname,username) values (10, 'Obidiah', 'Wooddisse','Wooddisse');
+insert into blog_user (id, name, surname,username) values (11, 'Felike', 'Birkinshaw','Birkinshaw');
 
 
 INSERT INTO Blog(id,title,body, created_by) VALUES (1,'Blogpost1','Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut al',1);

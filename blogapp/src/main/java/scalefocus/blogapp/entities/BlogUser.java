@@ -16,13 +16,13 @@ public class BlogUser implements BlogAppEntity {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	@Column(name = "name")
+	@Column(name = "name", nullable = false)
 	private String name;
 
-	@Column(name = "surname")
+	@Column(name = "surname", nullable = false)
 	private String surname;
 
-	@Column(name = "username", unique = true)
+	@Column(name = "username", unique = true, nullable = false)
 	private String username;
 
 	public Long getId() {

@@ -86,4 +86,17 @@ class TestBlogOperationsControllerEmbeddedServer {
 				m -> "newTitle".equals(m.getTitle()) && "newBody".equals(m.getShortSummary()), "updatedBlog");
 		assertThat(blogService.getBlogSummaryListForUser("aliveli")).areAtLeastOne(updatedBlog);
 	}
+
+	@Test
+	void attachAndDeatchTag() throws BlogAppEntityNotFoundException {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("id", "1");
+		params.put("tag", "My RestController Test Tag");
+		restTemplate.put("http://localhost:" + port + "/blogapp/blogs/{id}/tags/{tag}", null, params);
+
+		assertThat(blogService.getBlogsWithTag("My RestController Test Tag")).isNotEmpty();
+		
+		restTemplate.delete("http://localhost:" + port + "/blogapp/blogs/{id}/tags/{tag}", params);
+		assertThat(blogService.getBlogsWithTag("My RestController Test Tag")).isEmpty();
+	}
 }

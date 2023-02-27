@@ -23,10 +23,10 @@ public class Blog implements BlogAppEntity {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	@Column(name = "title")
+	@Column(name = "title", nullable = false)
 	private String title;
 
-	@Column(name = "body")
+	@Column(name = "body", nullable = false)
 	private String body;
 
 	@JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_blog_user"), nullable = false, name = "created_by")
