@@ -2,8 +2,8 @@ package scalefocus.blogapp.exceptions;
 
 import java.util.function.Supplier;
 
-import scalefocus.blogapp.entities.Blog;
-import scalefocus.blogapp.entities.BlogAppEntity;
+import scalefocus.blogapp.domain.Blog;
+import scalefocus.blogapp.domain.BlogAppEntity;
 
 public class BlogAppEntityNotFoundException extends Throwable implements Supplier<BlogAppEntity> {
 

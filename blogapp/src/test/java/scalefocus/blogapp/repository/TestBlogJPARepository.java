@@ -12,9 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import jakarta.transaction.Transactional;
-import scalefocus.blogapp.dto.BlogSummary;
-import scalefocus.blogapp.entities.Blog;
-import scalefocus.blogapp.entities.BlogUser;
+import scalefocus.blogapp.domain.Blog;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -27,9 +25,9 @@ class TestBlogJPARepository {
 	@Transactional
 	void test_InitialData() {
 		Optional<Blog> actual = repository.findById(1l);
-		Blog expectedValue = Blog.createBlog(new BlogUser(), "None", "None");
+		Blog expectedValue = new Blog();
 		expectedValue.setId(1l);
-		assertThat(actual).hasValue(expectedValue);
+		assertThat(actual.get().getId()).isEqualTo(1);
 		assertThat(actual.get().getCreatedBy().getId()).isEqualTo(1l);
 		assertThat(actual.get().getBlogtags().get(0).getTag()).isEqualTo("First Tag");
 	}
@@ -37,10 +35,10 @@ class TestBlogJPARepository {
 	@Test
 	void test_findBlogSummaryByUser() {
 
-		List<BlogSummary> actual = repository.findBlogSummaryByUser(1l);
+		List<Blog> actual = repository.findBlogSummaryByUser("aliveli");
 		assertThat(actual).singleElement();
-		BlogSummary blogSummary = actual.get(0);
-		assertThat(blogSummary.getShortSummary()).isEqualTo("Lorem ipsum dolor si");
+		Blog blogSummary = actual.get(0);
+		assertThat(blogSummary.getBody()).isEqualTo("Lorem ipsum dolor si");
 		assertThat(blogSummary.getTitle()).isEqualTo("Blogpost1");
 
 	}

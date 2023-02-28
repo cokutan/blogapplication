@@ -3,47 +3,43 @@ package scalefocus.blogapp.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
-import scalefocus.blogapp.dto.BlogCreationDTO;
-import scalefocus.blogapp.dto.BlogSummary;
-import scalefocus.blogapp.entities.Blog;
-import scalefocus.blogapp.entities.BlogTag;
-import scalefocus.blogapp.entities.BlogUser;
+import lombok.RequiredArgsConstructor;
+import scalefocus.blogapp.domain.Blog;
+import scalefocus.blogapp.domain.BlogTag;
+import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.repository.BlogJPARepository;
 import scalefocus.blogapp.repository.BlogTagRepository;
 import scalefocus.blogapp.repository.BlogUserRepository;
 
 @Service
+@RequiredArgsConstructor
 public class BlogService {
-	@Autowired
-	private BlogUserRepository blogUserRepository;
+	final private BlogUserRepository blogUserRepository;
 
-	@Autowired
-	private BlogJPARepository blogJPARepository;
+	final private BlogJPARepository blogJPARepository;
 
-	@Autowired
-	private BlogTagRepository blogTagRepository;
-	
+	final private BlogTagRepository blogTagRepository;
+
 	@Transactional
-	public Blog createBlog(BlogCreationDTO blogCreationDTO) throws BlogAppEntityNotFoundException {
-		BlogUser blogUser = blogUserRepository.findFirstByUsername(blogCreationDTO.getUsername());
-		if(blogUser ==null) {
+	public Blog createBlog(Blog blog) throws BlogAppEntityNotFoundException {
+		BlogUser blogUser = blogUserRepository.findFirstByUsername(blog.getCreatedBy().getUsername());
+		if (blogUser == null) {
 			throw new BlogAppEntityNotFoundException();
 		}
-		Blog blog = Blog.createBlog(blogUser, blogCreationDTO.getTitle(), blogCreationDTO.getBody());
+		blog.setCreatedBy(blogUser);
 		return blogJPARepository.save(blog);
 	}
 
-	public List<BlogSummary> getBlogSummaryListForUser(String username) throws BlogAppEntityNotFoundException {
+	public List<Blog> getBlogSummaryListForUser(String username) throws BlogAppEntityNotFoundException {
 		BlogUser blogUser = blogUserRepository.findFirstByUsername(username);
-		if(blogUser == null) {
+		if (blogUser == null) {
 			throw new BlogAppEntityNotFoundException();
 		}
-		return blogJPARepository.findBlogSummaryByUser(blogUser.getId());
+		return blogJPARepository.findBlogSummaryByUser(username);
 	}
 
 	public List<Blog> getBlogsWithTag(String tag) {
@@ -73,7 +69,7 @@ public class BlogService {
 	public void attachTag(Long blogId, String tag) throws BlogAppEntityNotFoundException {
 		Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException());
 		BlogTag blogtag = Optional.ofNullable(blogTagRepository.findByTag(tag))
-				.orElse(blogTagRepository.save(new BlogTag(0, tag)));
+				.orElse(blogTagRepository.save(new BlogTag().setId(0l).setTag(tag)));
 
 		blog.getBlogtags().add(blogtag);
 

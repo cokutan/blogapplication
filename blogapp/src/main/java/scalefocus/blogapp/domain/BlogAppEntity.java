@@ -1,4 +1,4 @@
-package scalefocus.blogapp.entities;
+package scalefocus.blogapp.domain;
 
 public interface BlogAppEntity {
 

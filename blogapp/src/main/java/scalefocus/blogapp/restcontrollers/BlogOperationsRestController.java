@@ -2,7 +2,6 @@ package scalefocus.blogapp.restcontrollers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,22 +13,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import scalefocus.blogapp.dto.BlogCreationDTO;
-import scalefocus.blogapp.dto.BlogSummary;
-import scalefocus.blogapp.entities.Blog;
+import lombok.RequiredArgsConstructor;
+import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.service.BlogService;
 
 @RestController
 @RequestMapping("/blogapp")
+@RequiredArgsConstructor
 public class BlogOperationsRestController {
-	@Autowired
-	private BlogService blogService;
+	final private BlogService blogService;
 
 	@GetMapping("/users/{username}/blogs")
-	public ResponseEntity<List<BlogSummary>> getSummaryListForUser(@PathVariable String username) {
+	public ResponseEntity<List<Blog>> getSummaryListForUser(@PathVariable String username) {
 		try {
-			List<BlogSummary> blogs = blogService.getBlogSummaryListForUser(username);
+			List<Blog> blogs = blogService.getBlogSummaryListForUser(username);
 
 			if (blogs.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -60,9 +58,9 @@ public class BlogOperationsRestController {
 	}
 
 	@PostMapping("/blogs")
-	public ResponseEntity<Blog> createBlog(@RequestBody BlogCreationDTO blogCreationDTO) {
+	public ResponseEntity<Blog> createBlog(@RequestBody Blog blog) {
 		try {
-			Blog blog = blogService.createBlog(blogCreationDTO);
+			blog = blogService.createBlog(blog);
 
 			return new ResponseEntity<>(blog, HttpStatus.OK);
 		} catch (BlogAppEntityNotFoundException e) {

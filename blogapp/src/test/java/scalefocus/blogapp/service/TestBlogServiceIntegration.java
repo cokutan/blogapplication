@@ -12,10 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import jakarta.transaction.Transactional;
-import scalefocus.blogapp.dto.BlogCreationDTO;
-import scalefocus.blogapp.dto.BlogSummary;
-import scalefocus.blogapp.entities.Blog;
-import scalefocus.blogapp.entities.BlogUser;
+import scalefocus.blogapp.domain.Blog;
+import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.repository.BlogJPARepository;
 import scalefocus.blogapp.repository.BlogTagRepository;
@@ -33,29 +31,36 @@ class TestBlogServiceIntegration {
 	@Autowired
 	private BlogTagRepository blogTagRepository;
 
+	private BlogUser blogUser = new BlogUser().setUsername("aliveli");
+
 	@Test
+	@Transactional
 	void createBlog_shouldReturnCreatedBlogObject() throws BlogAppEntityNotFoundException {
-		Blog createdBlog = blogService.createBlog(new BlogCreationDTO("aliveli", "title_test", "body_test"));
+
+		Blog createdBlog = blogService
+				.createBlog(new Blog().setCreatedBy(blogUser).setTitle("title_test").setBody("body_test"));
 		Condition<Blog> idGiven = new Condition<>(t -> t.getId() != null && t.getId() != 0, "idGiven");
 
 		assertThat(createdBlog).has(idGiven);
 	}
 
 	@Test
-	void getBlogSummaryListForUser_shouldReturnSummaryListOfUSer()  throws BlogAppEntityNotFoundException{
-		blogService.createBlog(new BlogCreationDTO("aliveli", "title_test",
+	void getBlogSummaryListForUser_shouldReturnSummaryListOfUser() throws BlogAppEntityNotFoundException {
+		blogService.createBlog(new Blog().setCreatedBy(blogUser).setTitle("title_test").setBody(
 				"The following table lists the supported databases and their tested versions. ... Changing database locking timeout in a cluster configuration."));
-		blogService.createBlog(new BlogCreationDTO("aliveli", "title_test",
+		blogService.createBlog(new Blog().setCreatedBy(blogUser).setTitle("title_test").setBody(
 				" A convenient way to fix a defective complex sql-query in a service that causes a functional test to fail is to inspect the database state"));
-		List<BlogSummary> summaryList = blogService.getBlogSummaryListForUser("aliveli");
-		assertThat(summaryList).filteredOn("shortSummary", "The following table ").isNotEmpty();
-		assertThat(summaryList).filteredOn("shortSummary", " A convenient way to").isNotEmpty();
+		List<Blog> summaryList = blogService.getBlogSummaryListForUser("aliveli");
+		assertThat(summaryList).filteredOn("body", "The following table ").isNotEmpty();
+		assertThat(summaryList).filteredOn("body", " A convenient way to").isNotEmpty();
 	}
 
 	@Test
+	@Transactional
 	void updateBlog_shouldReturnCreatedBlogObject() throws BlogAppEntityNotFoundException {
-		Blog blog = Blog.createBlog(new BlogUser(1, "test1", "test2", "username"), "title updated",
-				"description updated");
+		Blog blog = new Blog()
+				.setCreatedBy(new BlogUser().setId(1l).setName("test1").setSurname("test2").setUsername("username"))
+				.setTitle("title updated").setBody("description updated");
 
 		assertThat(blogService.updateBlog(1l, blog)).hasFieldOrPropertyWithValue("title", "title updated")
 				.hasFieldOrPropertyWithValue("body", "description updated");

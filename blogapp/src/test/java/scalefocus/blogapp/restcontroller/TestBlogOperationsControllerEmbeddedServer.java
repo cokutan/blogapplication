@@ -14,12 +14,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 
-import scalefocus.blogapp.dto.BlogCreationDTO;
-import scalefocus.blogapp.dto.BlogSummary;
-import scalefocus.blogapp.entities.Blog;
-import scalefocus.blogapp.entities.BlogUser;
+import scalefocus.blogapp.domain.Blog;
+import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.restcontrollers.BlogOperationsRestController;
 import scalefocus.blogapp.service.BlogService;
@@ -29,7 +26,7 @@ import scalefocus.blogapp.service.BlogService;
  * REST service
  */
 
-// SpringBootTest launch an instance of our application for tests purposes 
+// SpringBootTest launch an instance of our application for tests purposes
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(BlogOperationsRestController.class)
 class TestBlogOperationsControllerEmbeddedServer {
@@ -48,6 +45,8 @@ class TestBlogOperationsControllerEmbeddedServer {
 
 	@Autowired
 	private BlogService blogService;
+
+	private BlogUser blogUser = new BlogUser().setUsername("aliveli");
 
 	@Test
 	void index() {
@@ -69,33 +68,33 @@ class TestBlogOperationsControllerEmbeddedServer {
 
 	@Test
 	void createBlog() {
-		Condition<Blog> nonNullID = new Condition<Blog>(m -> m.getId() != null && m.getId() != 0, "nonNullID");
+		Condition<Blog> nonNullID = new Condition<>(m -> m.getId() != null && m.getId() != 0, "nonNullID");
 		assertThat(restTemplate.postForObject("http://localhost:" + port + "/blogs",
-				new BlogCreationDTO("aliveli", "another title", "another body"), Blog.class)).isNotNull()
-				.doesNotHave(nonNullID);
+				new Blog().setCreatedBy(blogUser).setTitle("another title").setBody("another body"), Blog.class))
+				.isNotNull().doesNotHave(nonNullID);
 	}
 
 	@Test
 	void updateBlog() throws BlogAppEntityNotFoundException {
-		Blog blogU = Blog.createBlog(new BlogUser(), "newTitle", "newBody");
-		Map<String, String> params = new HashMap<String, String>();
+		Blog blogU = new Blog().setCreatedBy(new BlogUser()).setTitle("newTitle").setBody("newBody");
+		Map<String, String> params = new HashMap<>();
 		params.put("id", "1");
-		restTemplate.put("http://localhost:" + port + "/blogapp/blogs/1", new HttpEntity<Blog>(blogU), params);
+		restTemplate.put("http://localhost:" + port + "/blogapp/blogs/1", new HttpEntity<>(blogU), params);
 
-		Condition<BlogSummary> updatedBlog = new Condition<BlogSummary>(
-				m -> "newTitle".equals(m.getTitle()) && "newBody".equals(m.getShortSummary()), "updatedBlog");
+		Condition<Blog> updatedBlog = new Condition<>(
+				m -> "newTitle".equals(m.getTitle()) && "newBody".equals(m.getBody()), "updatedBlog");
 		assertThat(blogService.getBlogSummaryListForUser("aliveli")).areAtLeastOne(updatedBlog);
 	}
 
 	@Test
 	void attachAndDeatchTag() throws BlogAppEntityNotFoundException {
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("id", "1");
 		params.put("tag", "My RestController Test Tag");
 		restTemplate.put("http://localhost:" + port + "/blogapp/blogs/{id}/tags/{tag}", null, params);
 
 		assertThat(blogService.getBlogsWithTag("My RestController Test Tag")).isNotEmpty();
-		
+
 		restTemplate.delete("http://localhost:" + port + "/blogapp/blogs/{id}/tags/{tag}", params);
 		assertThat(blogService.getBlogsWithTag("My RestController Test Tag")).isEmpty();
 	}
