@@ -19,92 +19,92 @@ import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.service.BlogService;
 
 @RestController
-@RequestMapping("/blogapp")
+@RequestMapping("/api/v2")
 @RequiredArgsConstructor
 public class BlogOperationsRestController {
-	final private BlogService blogService;
+    final private BlogService blogService;
 
-	@GetMapping("/users/{username}/blogs")
-	public ResponseEntity<List<Blog>> getSummaryListForUser(@PathVariable String username) {
-		try {
-			List<Blog> blogs = blogService.getBlogSummaryListForUser(username);
+    @GetMapping("/users/{username}/blogs")
+    public ResponseEntity<List<Blog>> getSummaryListForUser(@PathVariable String username) {
+	try {
+	    List<Blog> blogs = blogService.getBlogSummaryListForUser(username);
 
-			if (blogs.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
+	    if (blogs.isEmpty()) {
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	    }
 
-			return new ResponseEntity<>(blogs, HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+	    return new ResponseEntity<>(blogs, HttpStatus.OK);
+	} catch (BlogAppEntityNotFoundException e) {
+	    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+    }
 
-	@GetMapping("/blogs/tags/{tag}")
-	public ResponseEntity<List<Blog>> getBlogsWithTag(@PathVariable String tag) {
-		try {
-			List<Blog> blogs = blogService.getBlogsWithTag(tag);
+    @GetMapping("/blogs/tags/{tag}")
+    public ResponseEntity<List<Blog>> getBlogsWithTag(@PathVariable String tag) {
+	try {
+	    List<Blog> blogs = blogService.getBlogsWithTag(tag);
 
-			if (blogs.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
+	    if (blogs.isEmpty()) {
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	    }
 
-			return new ResponseEntity<>(blogs, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+	    return new ResponseEntity<>(blogs, HttpStatus.OK);
+	} catch (Exception e) {
+	    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+    }
 
-	@PostMapping("/blogs")
-	public ResponseEntity<Blog> createBlog(@RequestBody Blog blog) {
-		try {
-			blog = blogService.createBlog(blog);
+    @PostMapping("/blogs")
+    public ResponseEntity<Blog> createBlog(@RequestBody Blog blog) {
+	try {
+	    blog = blogService.createBlog(blog);
 
-			return new ResponseEntity<>(blog, HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+	    return new ResponseEntity<>(blog, HttpStatus.OK);
+	} catch (BlogAppEntityNotFoundException e) {
+	    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	} catch (Exception e) {
+	    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+    }
 
-	@PutMapping("/blogs/{id}")
-	public ResponseEntity<Blog> updateBlog(@PathVariable("id") Long id, @RequestBody Blog blog) {
-		try {
-			blog = blogService.updateBlog(id, blog);
+    @PutMapping("/blogs/{id}")
+    public ResponseEntity<Blog> updateBlog(@PathVariable("id") Long id, @RequestBody Blog blog) {
+	try {
+	    blog = blogService.updateBlog(id, blog);
 
-			return new ResponseEntity<>(blog, HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+	    return new ResponseEntity<>(blog, HttpStatus.OK);
+	} catch (BlogAppEntityNotFoundException e) {
+	    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	} catch (Exception e) {
+	    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+    }
 
-	@PutMapping("/blogs/{id}/tags/{tag}")
-	public ResponseEntity<HttpStatus> attachTag(@PathVariable("id") Long id, @PathVariable("tag") String tag) {
-		try {
-			blogService.attachTag(id, tag);
+    @PutMapping("/blogs/{id}/tags/{tag}")
+    public ResponseEntity<HttpStatus> attachTag(@PathVariable("id") Long id, @PathVariable("tag") String tag) {
+	try {
+	    blogService.attachTag(id, tag);
 
-			return new ResponseEntity<>(HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+	    return new ResponseEntity<>(HttpStatus.OK);
+	} catch (BlogAppEntityNotFoundException e) {
+	    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	} catch (Exception e) {
+	    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+    }
 
-	@DeleteMapping("/blogs/{id}/tags/{tag}")
-	public ResponseEntity<HttpStatus> unattachTag(@PathVariable("id") Long id, @PathVariable("tag") String tag) {
-		try {
-			blogService.unattachTag(id, tag);
-			return new ResponseEntity<>(HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+    @DeleteMapping("/blogs/{id}/tags/{tag}")
+    public ResponseEntity<HttpStatus> unattachTag(@PathVariable("id") Long id, @PathVariable("tag") String tag) {
+	try {
+	    blogService.unattachTag(id, tag);
+	    return new ResponseEntity<>(HttpStatus.OK);
+	} catch (BlogAppEntityNotFoundException e) {
+	    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	} catch (Exception e) {
+	    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+    }
 }

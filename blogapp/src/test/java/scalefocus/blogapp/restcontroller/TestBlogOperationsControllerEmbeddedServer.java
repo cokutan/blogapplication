@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Condition;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,20 +15,27 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
+import scalefocus.blogapp.auth.AuthenticationRequest;
+import scalefocus.blogapp.auth.AuthenticationResponse;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
+import scalefocus.blogapp.repository.BlogUserRepository;
 import scalefocus.blogapp.restcontrollers.BlogOperationsRestController;
 import scalefocus.blogapp.service.BlogService;
 
 /**
- * The goal of this class is to show how the Embedded Server is used to test the
- * REST service
+ * The goal of this class is to show how the Embedded Server is used to test the REST service
  */
 
 // SpringBootTest launch an instance of our application for tests purposes
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@WithMockUser
 @Import(BlogOperationsRestController.class)
 class TestBlogOperationsControllerEmbeddedServer {
 	@Autowired
@@ -46,7 +54,23 @@ class TestBlogOperationsControllerEmbeddedServer {
 	@Autowired
 	private BlogService blogService;
 
-	private BlogUser blogUser = new BlogUser().setUsername("aliveli");
+	@Autowired
+	private BlogUserRepository blogUserRepository;
+
+	private BlogUser blogUser;
+
+	private String bearerToken;
+
+	@BeforeEach
+	public void login() {
+		AuthenticationResponse response = restTemplate.postForObject(
+				"http://localhost:" + port + "/api/v2/auth/authenticate",
+				AuthenticationRequest.builder().password("Veli").username("aliveli").build(),
+				AuthenticationResponse.class);
+		blogUser = blogUserRepository.findFirstByUsername("aliveli").get();
+		bearerToken = "Bearer " + response.getToken();
+
+	}
 
 	@Test
 	void index() {
@@ -54,33 +78,39 @@ class TestBlogOperationsControllerEmbeddedServer {
 	}
 
 	@Test
+	@SuppressWarnings(value = { "unchecked" })
 	void getUserBlogs() {
-		assertThat(restTemplate.getForObject("http://localhost:" + port + "/blogapp/users/aliveli/blogs", List.class))
-				.isNotEmpty();
+		List<Blog> body = restTemplate.exchange("http://localhost:" + port + "/api/v2/users/aliveli/blogs",
+				HttpMethod.GET, createEntityForRestTemplate(null), List.class).getBody();
+		assertThat(body).isNotEmpty();
 	}
 
 	@Test
+	@SuppressWarnings(value = { "unchecked" })
 	void getBlogsWithTag() {
-		List<Blog> list = restTemplate.getForObject("http://localhost:" + port + "/blogapp/blogs/tags/First Tag",
-				List.class);
-		assertThat(list).isNotEmpty();
+		List<Blog> body = restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/tags/First Tag",
+				HttpMethod.GET, createEntityForRestTemplate(null), List.class).getBody();
+		assertThat(body).isNotEmpty();
 	}
 
 	@Test
 	void createBlog() {
 		Condition<Blog> nonNullID = new Condition<>(m -> m.getId() != null && m.getId() != 0, "nonNullID");
-		assertThat(restTemplate.postForObject("http://localhost:" + port + "/blogs",
-				new Blog().setCreatedBy(blogUser).setTitle("another title").setBody("another body"), Blog.class))
-				.isNotNull().doesNotHave(nonNullID);
+
+		Blog body = restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs", HttpMethod.POST,
+				createEntityForRestTemplate(
+						new Blog().setCreatedBy(blogUser).setTitle("another title").setBody("another body")),
+				Blog.class).getBody();
+		assertThat(body).isNotNull().has(nonNullID);
 	}
 
 	@Test
 	void updateBlog() throws BlogAppEntityNotFoundException {
-		Blog blogU = new Blog().setCreatedBy(new BlogUser()).setTitle("newTitle").setBody("newBody");
+		Blog blogU = new Blog().setCreatedBy(blogUser).setTitle("newTitle").setBody("newBody");
 		Map<String, String> params = new HashMap<>();
 		params.put("id", "1");
-		restTemplate.put("http://localhost:" + port + "/blogapp/blogs/1", new HttpEntity<>(blogU), params);
-
+		restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/1", HttpMethod.PUT,
+				createEntityForRestTemplate(blogU), Blog.class, params).getBody();
 		Condition<Blog> updatedBlog = new Condition<>(
 				m -> "newTitle".equals(m.getTitle()) && "newBody".equals(m.getBody()), "updatedBlog");
 		assertThat(blogService.getBlogSummaryListForUser("aliveli")).areAtLeastOne(updatedBlog);
@@ -91,11 +121,20 @@ class TestBlogOperationsControllerEmbeddedServer {
 		Map<String, String> params = new HashMap<>();
 		params.put("id", "1");
 		params.put("tag", "My RestController Test Tag");
-		restTemplate.put("http://localhost:" + port + "/blogapp/blogs/{id}/tags/{tag}", null, params);
+		restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/{id}/tags/{tag}", HttpMethod.PUT,
+				createEntityForRestTemplate(null), ResponseEntity.class, params);
 
 		assertThat(blogService.getBlogsWithTag("My RestController Test Tag")).isNotEmpty();
 
-		restTemplate.delete("http://localhost:" + port + "/blogapp/blogs/{id}/tags/{tag}", params);
+		restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/{id}/tags/{tag}", HttpMethod.DELETE,
+				createEntityForRestTemplate(null), ResponseEntity.class, params);
 		assertThat(blogService.getBlogsWithTag("My RestController Test Tag")).isEmpty();
+	}
+
+	private <T> HttpEntity<T> createEntityForRestTemplate(T body) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("authorization", bearerToken);
+		return new HttpEntity<T>(body, headers);
 	}
 }

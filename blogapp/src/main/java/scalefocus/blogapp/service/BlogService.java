@@ -18,61 +18,61 @@ import scalefocus.blogapp.repository.BlogUserRepository;
 @Service
 @RequiredArgsConstructor
 public class BlogService {
-	final private BlogUserRepository blogUserRepository;
+    final private BlogUserRepository blogUserRepository;
 
-	final private BlogJPARepository blogJPARepository;
+    final private BlogJPARepository blogJPARepository;
 
-	final private BlogTagRepository blogTagRepository;
+    final private BlogTagRepository blogTagRepository;
 
-	@Transactional
-	public Blog createBlog(Blog blog) throws BlogAppEntityNotFoundException {
-		BlogUser blogUser = blogUserRepository.findFirstByUsername(blog.getCreatedBy().getUsername());
-		if (blogUser == null) {
-			throw new BlogAppEntityNotFoundException();
-		}
-		blog.setCreatedBy(blogUser);
-		return blogJPARepository.save(blog);
+    @Transactional
+    public Blog createBlog(Blog blog) throws BlogAppEntityNotFoundException {
+	Optional<BlogUser> op = blogUserRepository.findFirstByUsername(blog.getCreatedBy().getUsername());
+	if (!op.isPresent()) {
+	    throw new BlogAppEntityNotFoundException();
 	}
+	blog.setCreatedBy(op.get());
+	return blogJPARepository.save(blog);
+    }
 
-	public List<Blog> getBlogSummaryListForUser(String username) throws BlogAppEntityNotFoundException {
-		BlogUser blogUser = blogUserRepository.findFirstByUsername(username);
-		if (blogUser == null) {
-			throw new BlogAppEntityNotFoundException();
-		}
-		return blogJPARepository.findBlogSummaryByUser(username);
+    public List<Blog> getBlogSummaryListForUser(String username) throws BlogAppEntityNotFoundException {
+	Optional<BlogUser> op = blogUserRepository.findFirstByUsername(username);
+	if (!op.isPresent()) {
+	    throw new BlogAppEntityNotFoundException();
 	}
+	return blogJPARepository.findBlogSummaryByUser(username);
+    }
 
-	public List<Blog> getBlogsWithTag(String tag) {
-		return blogJPARepository.findByBlogtags_Tag(tag);
-	}
+    public List<Blog> getBlogsWithTag(String tag) {
+	return blogJPARepository.findByBlogtags_Tag(tag);
+    }
 
-	@Transactional
-	public Blog updateBlog(Long id, Blog blogData) throws BlogAppEntityNotFoundException {
-		Blog blog = blogJPARepository.findById(id).orElseThrow(() -> new BlogAppEntityNotFoundException());
-		blog.setTitle(blogData.getTitle());
-		blog.setBody(blogData.getBody());
-		return blog;
-	}
+    @Transactional
+    public Blog updateBlog(Long id, Blog blogData) throws BlogAppEntityNotFoundException {
+	Blog blog = blogJPARepository.findById(id).orElseThrow(() -> new BlogAppEntityNotFoundException());
+	blog.setTitle(blogData.getTitle());
+	blog.setBody(blogData.getBody());
+	return blog;
+    }
 
-	@Transactional
-	public void unattachTag(Long blogId, String tag) throws BlogAppEntityNotFoundException {
-		Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException());
-		BlogTag blogtag = Optional.ofNullable(blogTagRepository.findByTag(tag))
-				.orElseThrow(() -> new BlogAppEntityNotFoundException());
+    @Transactional
+    public void unattachTag(Long blogId, String tag) throws BlogAppEntityNotFoundException {
+	Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException());
+	BlogTag blogtag = Optional.ofNullable(blogTagRepository.findByTag(tag))
+		.orElseThrow(() -> new BlogAppEntityNotFoundException());
 
-		blog.getBlogtags().remove(blogtag);
+	blog.getBlogtags().remove(blogtag);
 
-		return;
-	}
+	return;
+    }
 
-	@Transactional
-	public void attachTag(Long blogId, String tag) throws BlogAppEntityNotFoundException {
-		Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException());
-		BlogTag blogtag = Optional.ofNullable(blogTagRepository.findByTag(tag))
-				.orElse(blogTagRepository.save(new BlogTag().setId(0l).setTag(tag)));
+    @Transactional
+    public void attachTag(Long blogId, String tag) throws BlogAppEntityNotFoundException {
+	Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException());
+	BlogTag blogtag = Optional.ofNullable(blogTagRepository.findByTag(tag))
+		.orElse(blogTagRepository.save(new BlogTag().setId(0l).setTag(tag)));
 
-		blog.getBlogtags().add(blogtag);
+	blog.getBlogtags().add(blogtag);
 
-		return;
-	}
+	return;
+    }
 }

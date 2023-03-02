@@ -19,25 +19,25 @@ import lombok.experimental.Accessors;
 
 @Entity
 @Data
-@Accessors(chain=true)
+@Accessors(chain = true)
 public class Blog implements BlogAppEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
-	@Column(name = "title", nullable = false)
-	private String title;
+    @Column(name = "title", nullable = false)
+    private String title;
 
-	@Column(name = "body", nullable = false)
-	private String body;
+    @Column(name = "body", nullable = false)
+    private String body;
 
-	@JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_blog_user"), nullable = false, name = "created_by")
-	@ManyToOne(cascade = {}, targetEntity = BlogUser.class)
-	private BlogUser createdBy;
+    @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_blog_user"), nullable = false, name = "created_by")
+    @ManyToOne(cascade = {}, targetEntity = BlogUser.class)
+    private BlogUser createdBy;
 
-	@ManyToMany( cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
-	@JoinTable(name = "BLOG_TAG_MM", joinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog"), name = "BLOG_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog_tag"), name = "BLOG_TAG_ID", referencedColumnName = "ID"))
-	private List<BlogTag> blogtags = new ArrayList<>();
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH })
+    @JoinTable(name = "BLOG_TAG_MM", joinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog"), name = "BLOG_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog_tag"), name = "BLOG_TAG_ID", referencedColumnName = "ID"))
+    private List<BlogTag> blogtags = new ArrayList<>();
 
 }

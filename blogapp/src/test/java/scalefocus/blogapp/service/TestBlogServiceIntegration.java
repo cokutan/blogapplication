@@ -6,10 +6,8 @@ import java.util.List;
 
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import jakarta.transaction.Transactional;
 import scalefocus.blogapp.domain.Blog;
@@ -18,7 +16,6 @@ import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.repository.BlogJPARepository;
 import scalefocus.blogapp.repository.BlogTagRepository;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 class TestBlogServiceIntegration {
 
@@ -59,7 +56,7 @@ class TestBlogServiceIntegration {
 	@Transactional
 	void updateBlog_shouldReturnCreatedBlogObject() throws BlogAppEntityNotFoundException {
 		Blog blog = new Blog()
-				.setCreatedBy(new BlogUser().setId(1l).setName("test1").setSurname("test2").setUsername("username"))
+				.setCreatedBy(new BlogUser().setId(1l).setDisplayname("test1").setUsername("username"))
 				.setTitle("title updated").setBody("description updated");
 
 		assertThat(blogService.updateBlog(1l, blog)).hasFieldOrPropertyWithValue("title", "title updated")

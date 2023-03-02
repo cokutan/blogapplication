@@ -10,14 +10,14 @@ import scalefocus.blogapp.domain.Blog;
 
 public interface BlogJPARepository extends JpaRepository<Blog, Long> {
 
-	@Query("""
-			select new scalefocus.blogapp.domain.Blog(
-			   b.title as title,substring(b.body,1,20) as body)
-			from Blog b inner join BlogUser bu on b.createdBy.id=bu.id
-			where bu.username = :username
-			order by b.id
-			""")
-	List<Blog> findBlogSummaryByUser(@Param("username") String username);
+    @Query("""
+    	select new scalefocus.blogapp.domain.Blog(
+    	   b.title as title,substring(b.body,1,20) as body)
+    	from Blog b inner join BlogUser bu on b.createdBy.id=bu.id
+    	where bu.username = :username
+    	order by b.id
+    	""")
+    List<Blog> findBlogSummaryByUser(@Param("username") String username);
 
-	List<Blog> findByBlogtags_Tag(String tag);
+    List<Blog> findByBlogtags_Tag(String tag);
 }
