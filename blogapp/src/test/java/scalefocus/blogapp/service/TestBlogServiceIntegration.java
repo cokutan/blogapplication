@@ -8,6 +8,9 @@ import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import jakarta.transaction.Transactional;
 import scalefocus.blogapp.domain.Blog;
@@ -17,8 +20,12 @@ import scalefocus.blogapp.repository.BlogJPARepository;
 import scalefocus.blogapp.repository.BlogTagRepository;
 
 @SpringBootTest
+@Testcontainers
+@ActiveProfiles("testcontainers")
+//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+//@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class TestBlogServiceIntegration {
-
+	
 	@Autowired
 	private BlogService blogService;
 
@@ -32,6 +39,7 @@ class TestBlogServiceIntegration {
 
 	@Test
 	@Transactional
+	@Rollback
 	void createBlog_shouldReturnCreatedBlogObject() throws BlogAppEntityNotFoundException {
 
 		Blog createdBlog = blogService
@@ -42,6 +50,7 @@ class TestBlogServiceIntegration {
 	}
 
 	@Test
+	@Rollback
 	void getBlogSummaryListForUser_shouldReturnSummaryListOfUser() throws BlogAppEntityNotFoundException {
 		blogService.createBlog(new Blog().setCreatedBy(blogUser).setTitle("title_test").setBody(
 				"The following table lists the supported databases and their tested versions. ... Changing database locking timeout in a cluster configuration."));
@@ -54,9 +63,9 @@ class TestBlogServiceIntegration {
 
 	@Test
 	@Transactional
+	@Rollback
 	void updateBlog_shouldReturnCreatedBlogObject() throws BlogAppEntityNotFoundException {
-		Blog blog = new Blog()
-				.setCreatedBy(new BlogUser().setId(1l).setDisplayname("test1").setUsername("username"))
+		Blog blog = new Blog().setCreatedBy(new BlogUser().setId(1l).setDisplayname("test1").setUsername("username"))
 				.setTitle("title updated").setBody("description updated");
 
 		assertThat(blogService.updateBlog(1l, blog)).hasFieldOrPropertyWithValue("title", "title updated")
@@ -65,6 +74,16 @@ class TestBlogServiceIntegration {
 
 	@Test
 	@Transactional
+	@Rollback
+	void deleteBlog_shouldReturnNoObject() throws BlogAppEntityNotFoundException {
+		blogService.deleteBlog(1l);
+
+		assertThat(blogJPARepository.findById(1l)).isEmpty();
+	}
+
+	@Test
+	@Transactional
+	@Rollback
 	void attachTag_shouldAddTagToBlogObject() throws BlogAppEntityNotFoundException {
 		blogService.attachTag(1l, "tag1");
 		Blog blog = blogJPARepository.findById(1l).get();
@@ -73,6 +92,7 @@ class TestBlogServiceIntegration {
 
 	@Test
 	@Transactional
+	@Rollback
 	void attachTag_shouldRemoveTagToBlogObject() throws BlogAppEntityNotFoundException {
 		blogService.unattachTag(1l, "First Tag");
 		Blog blog = blogJPARepository.findById(1l).get();

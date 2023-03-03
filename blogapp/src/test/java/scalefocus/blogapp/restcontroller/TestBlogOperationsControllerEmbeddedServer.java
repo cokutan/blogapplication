@@ -30,7 +30,8 @@ import scalefocus.blogapp.restcontrollers.BlogOperationsRestController;
 import scalefocus.blogapp.service.BlogService;
 
 /**
- * The goal of this class is to show how the Embedded Server is used to test the REST service
+ * The goal of this class is to show how the Embedded Server is used to test the
+ * REST service
  */
 
 // SpringBootTest launch an instance of our application for tests purposes
@@ -114,6 +115,16 @@ class TestBlogOperationsControllerEmbeddedServer {
 		Condition<Blog> updatedBlog = new Condition<>(
 				m -> "newTitle".equals(m.getTitle()) && "newBody".equals(m.getBody()), "updatedBlog");
 		assertThat(blogService.getBlogSummaryListForUser("aliveli")).areAtLeastOne(updatedBlog);
+	}
+
+	@Test
+	void deleteBlog() throws BlogAppEntityNotFoundException {
+		Map<String, String> params = new HashMap<>();
+		params.put("id", "1");
+		restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/1", HttpMethod.DELETE,
+				createEntityForRestTemplate(null), Blog.class, params).getBody();
+		Condition<Blog> deletedBlog = new Condition<>(m -> Long.valueOf(1).equals(m.getId()), "deletedBlog");
+		assertThat(blogService.getBlogSummaryListForUser("aliveli")).areNot(deletedBlog);
 	}
 
 	@Test

@@ -1,3 +1,4 @@
+
 INSERT INTO blog_user (id,  displayname,password,username, role) VALUES (1,'Ali','$2a$12$4/EQoZg5Ku1cYTyqzEVGy.HfxHwwLOCFv8dBUkidk/vTxNzyGgy0y','aliveli','USER');
 insert into blog_user (id, displayname, password,username, role) values (2, 'Wini', '$2a$12$WxjKuDNRAouYWRrMCQxwpesrSGDwzcfW2he833P1/isnDbQf/shty', 'Wini','USER');
 insert into blog_user (id, displayname, password,username, role) values (3, 'Sigismundo', '$2a$12$b5hwxHqHo2193faT6G2EUOcZnAIMWnwG2H8uhhDEunu4BHfZN05j6','Sigismundo','USER');
@@ -33,10 +34,11 @@ INSERT INTO blog_tag(id, tag) VALUES (7, 'Seventh Tag');
 
 INSERT INTO blog_tag_mm(blog_id, blog_tag_id) VALUES (1, 1);
 
-select VALUES next VALUE FOR blog_seq;
-select VALUES next VALUE FOR blog_user_seq;
-select VALUES next VALUE FOR blog_tag_seq;
-
-ALTER SEQUENCE blog_seq RESTART WITH 12;
-ALTER SEQUENCE blog_user_seq RESTART WITH 12;
-ALTER SEQUENCE blog_tag_seq RESTART WITH 8;
+ truncate table blog_tag_seq;
+ truncate table blog_user_seq;
+ truncate table blog_seq;
+ 
+insert into blog_tag_seq values ( 20 );
+insert into blog_seq values ( 20 );
+insert into blog_user_seq values ( 20 );
+     
