@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 import scalefocus.blogapp.auth.AuthenticationRequest;
 import scalefocus.blogapp.auth.AuthenticationResponse;
@@ -36,6 +37,7 @@ import scalefocus.blogapp.service.BlogService;
 
 // SpringBootTest launch an instance of our application for tests purposes
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 //@WithMockUser
 @Import(BlogOperationsRestController.class)
 class TestBlogOperationsControllerEmbeddedServer {

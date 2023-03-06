@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.repository.BlogJPARepository;
+import scalefocus.blogapp.repository.BlogUserRepository;
 import scalefocus.blogapp.service.BlogService;
 
 @RestController
@@ -28,6 +29,7 @@ public class BlogOperationsRestController {
 	final private BlogService blogService;
 
 	final private BlogJPARepository blogJPARepository;
+	final private BlogUserRepository blogUserRepository;
 
 	@GetMapping("/users/{username}/blogs")
 	public ResponseEntity<List<Blog>> getSummaryListForUser(@PathVariable String username) {
@@ -63,8 +65,9 @@ public class BlogOperationsRestController {
 	}
 
 	@PostMapping("/blogs")
-	public ResponseEntity<Blog> createBlog(@RequestBody Blog blog) {
+	public ResponseEntity<Blog> createBlog(@RequestBody Blog blog, Principal principal) {
 		try {
+			blog.setCreatedBy(blogUserRepository.findFirstByUsername(principal.getName()).get());
 			blog = blogService.createBlog(blog);
 
 			return new ResponseEntity<>(blog, HttpStatus.OK);

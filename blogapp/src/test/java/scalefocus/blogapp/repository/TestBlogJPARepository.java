@@ -8,11 +8,13 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.transaction.Transactional;
 import scalefocus.blogapp.domain.Blog;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class TestBlogJPARepository {
 
 	@Autowired

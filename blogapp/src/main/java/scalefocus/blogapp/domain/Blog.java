@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -23,7 +24,8 @@ import lombok.experimental.Accessors;
 public class Blog implements BlogAppEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "blog_seq")
+    @SequenceGenerator(allocationSize = 1, name = "blog_seq")
     private Long id;
 
     @Column(name = "title", nullable = false)

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.annotation.Testable;
+import org.springframework.test.context.ActiveProfiles;
 
 import mockit.Expectations;
 import mockit.Injectable;
@@ -20,6 +21,7 @@ import scalefocus.blogapp.repository.BlogTagRepository;
 import scalefocus.blogapp.repository.BlogUserRepository;
 
 @Testable
+@ActiveProfiles("test")
 class TestBlogService {
 
 	@Tested(fullyInitialized = true)

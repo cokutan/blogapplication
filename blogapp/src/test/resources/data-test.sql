@@ -33,10 +33,10 @@ INSERT INTO blog_tag(id, tag) VALUES (7, 'Seventh Tag');
 
 INSERT INTO blog_tag_mm(blog_id, blog_tag_id) VALUES (1, 1);
 
- truncate table blog_tag_seq;
- truncate table blog_user_seq;
- truncate table blog_seq;
- 
-insert into blog_tag_seq values ( 20 );
-insert into blog_seq values ( 20 );
-insert into blog_user_seq values ( 20 );
+select VALUES next VALUE FOR blog_seq;
+select VALUES next VALUE FOR blog_user_seq;
+select VALUES next VALUE FOR blog_tag_seq;
+
+ALTER SEQUENCE blog_seq RESTART WITH 12;
+ALTER SEQUENCE blog_user_seq RESTART WITH 12;
+ALTER SEQUENCE blog_tag_seq RESTART WITH 8;
