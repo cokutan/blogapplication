@@ -1,11 +1,11 @@
 plugins {
 	id 'java'
 	id 'eclipse'
-	id 'org.springframework.boot' version '3.0.3'
+	id 'org.springframework.boot' version '3.0.4'
 	id 'io.spring.dependency-management' version '1.1.0'
 	id "com.palantir.docker" version "0.22.1"
   	id "io.freefair.lombok" version "6.6.3"
-  	//id 'com.adarshr.test-logger' version '3.2.0'
+  	id 'com.adarshr.test-logger' version '3.2.0'
 }
 
 group = 'scalefocus.blogapp'
@@ -28,6 +28,8 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    implementation 'org.springdoc:springdoc-openapi-starter-common:2.0.2'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 	runtimeOnly    'com.h2database:h2'
 	runtimeOnly 'mysql:mysql-connector-java:8.0.32'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -36,15 +38,15 @@ dependencies {
 	testImplementation 'org.jmockit:jmockit:1.49'
 	testImplementation "org.testcontainers:mysql:1.17.6"
 	testImplementation 'org.testcontainers:testcontainers:1.17.6'
-	testImplementation "org.testcontainers:junit-jupiter:1.17.6"
+	testImplementation "org.testcontainers:junit-jupiter:1.17.6"	
 }
 test {
     jvmArgs "-javaagent:${classpath.find { it.name.contains("jmockit") }.absolutePath}"
 }
-/*testlogger {
+testlogger {
     theme 'mocha'
     logLevel 'debug'
-}*/
+}
 test {
     testLogging.showExceptions = true
 }
