@@ -4,7 +4,6 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
-import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,9 +22,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import lombok.RequiredArgsConstructor;
-import scalefocus.blogapp.auth.RegisterRequest;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.repository.BlogJPARepository;

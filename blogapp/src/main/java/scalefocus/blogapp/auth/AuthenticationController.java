@@ -14,11 +14,13 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 
 @RestController
 @RequestMapping("/api/v2/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationController {
 
 	private final AuthenticationService authenticationService;
@@ -49,7 +51,11 @@ public class AuthenticationController {
 							+ "  \"password\": \"123456\"\r\n"
 							+ "}", summary = "Minimal request") },schema = @Schema(implementation = AuthenticationRequest.class))) @RequestBody AuthenticationRequest request) {
 		try {
-			return ResponseEntity.ok(authenticationService.authenticate(request));
+			log.info("Authentication started..........");
+			AuthenticationResponse authenticationResponse = authenticationService.authenticate(request);
+			ResponseEntity<AuthenticationResponse> ok = ResponseEntity.ok(authenticationResponse);
+			log.info("Authentication token generated: " + authenticationResponse.getToken());
+			return ok;
 		} catch (BlogAppEntityNotFoundException e) {
 			return ResponseEntity.of(Optional.empty());
 		}

@@ -2,6 +2,7 @@ package scalefocus.blogapp.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -42,8 +43,11 @@ public class BlogService {
 		return blogJPARepository.findBlogSummaryByUser(username);
 	}
 
+	@Transactional
 	public List<Blog> getBlogsWithTag(String tag) {
-		return blogJPARepository.findByBlogtags_Tag(tag);
+		List<Blog> blogsWithTag = blogJPARepository.findByBlogtags_Tag(tag);
+		blogsWithTag.stream().map(Blog::getBlogtags).flatMap(List::stream).collect(Collectors.toList());
+		return blogsWithTag;
 	}
 
 	@Transactional
