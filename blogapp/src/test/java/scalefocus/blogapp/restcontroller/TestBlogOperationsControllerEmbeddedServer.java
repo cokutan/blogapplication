@@ -17,6 +17,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,6 +27,7 @@ import scalefocus.blogapp.auth.AuthenticationRequest;
 import scalefocus.blogapp.auth.AuthenticationResponse;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogUser;
+import scalefocus.blogapp.exceptions.ApiError;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.repository.BlogUserRepository;
 import scalefocus.blogapp.restcontrollers.BlogOperationsRestController;
@@ -88,6 +91,14 @@ class TestBlogOperationsControllerEmbeddedServer {
 		assertThat(body).isNotEmpty();
 	}
 
+	@Test
+	void getUserBlogsWithNotFoundUser() {
+		ApiError body = restTemplate.exchange("http://localhost:" + port + "/api/v2/users/nonexistinguser/blogs",
+				HttpMethod.GET, createEntityForRestTemplate(null), ApiError.class).getBody();
+		assertThat(body).extracting("status").isEqualTo(HttpStatus.NOT_FOUND);
+		assertThat(body).extracting("message").isEqualTo("BlogUser was not found for parameters {username=nonexistinguser}");
+	}
+	
 	@Test
 	@SuppressWarnings(value = { "unchecked" })
 	void getBlogsWithTag() {

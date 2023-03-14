@@ -1,5 +1,8 @@
 package scalefocus.blogapp.service;
 
+import static io.jsonwebtoken.lang.Collections.arrayToList;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,7 +32,7 @@ public class BlogService {
 	public Blog createBlog(Blog blog) throws BlogAppEntityNotFoundException {
 		Optional<BlogUser> op = blogUserRepository.findFirstByUsername(blog.getCreatedBy().getUsername());
 		if (!op.isPresent()) {
-			throw new BlogAppEntityNotFoundException();
+			throw new BlogAppEntityNotFoundException(BlogUser.class, "username", blog.getCreatedBy().getUsername());
 		}
 		blog.setCreatedBy(op.get());
 		return blogJPARepository.save(blog);
@@ -38,7 +41,7 @@ public class BlogService {
 	public List<Blog> getBlogSummaryListForUser(String username) throws BlogAppEntityNotFoundException {
 		Optional<BlogUser> op = blogUserRepository.findFirstByUsername(username);
 		if (!op.isPresent()) {
-			throw new BlogAppEntityNotFoundException();
+			throw new BlogAppEntityNotFoundException(BlogUser.class, "username",username);
 		}
 		return blogJPARepository.findBlogSummaryByUser(username);
 	}
@@ -46,23 +49,28 @@ public class BlogService {
 	@Transactional
 	public List<Blog> getBlogsWithTag(String tag) {
 		List<Blog> blogsWithTag = blogJPARepository.findByBlogtags_Tag(tag);
-		blogsWithTag.stream().map(Blog::getBlogtags).flatMap(List::stream).collect(Collectors.toList());
+		touchTags(blogsWithTag);
 		return blogsWithTag;
+	}
+
+	private void touchTags(List<Blog> blogsWithTag) {
+		blogsWithTag.stream().map(Blog::getBlogtags).flatMap(List::stream).collect(Collectors.toList());
 	}
 
 	@Transactional
 	public Blog updateBlog(Long id, Blog blogData) throws BlogAppEntityNotFoundException {
-		Blog blog = blogJPARepository.findById(id).orElseThrow(() -> new BlogAppEntityNotFoundException());
+		Blog blog = blogJPARepository.findById(id).orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", id.toString()));
 		blog.setTitle(blogData.getTitle());
 		blog.setBody(blogData.getBody());
+		touchTags(List.of(blog));
 		return blog;
 	}
 
 	@Transactional
 	public void unattachTag(Long blogId, String tag) throws BlogAppEntityNotFoundException {
-		Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException());
+		Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", blogId.toString()));
 		BlogTag blogtag = Optional.ofNullable(blogTagRepository.findByTag(tag))
-				.orElseThrow(() -> new BlogAppEntityNotFoundException());
+				.orElseThrow(() -> new BlogAppEntityNotFoundException(BlogTag.class, "tag", tag));
 
 		blog.getBlogtags().remove(blogtag);
 
@@ -71,7 +79,7 @@ public class BlogService {
 
 	@Transactional
 	public void attachTag(Long blogId, String tag) throws BlogAppEntityNotFoundException {
-		Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException());
+		Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", blogId.toString()));
 		BlogTag blogtag = Optional.ofNullable(blogTagRepository.findByTag(tag))
 				.orElse(blogTagRepository.save(new BlogTag().setId(0l).setTag(tag)));
 
@@ -82,7 +90,7 @@ public class BlogService {
 
 	@Transactional
 	public void deleteBlog(Long id) throws BlogAppEntityNotFoundException {
-		Blog blog = blogJPARepository.findById(id).orElseThrow(() -> new BlogAppEntityNotFoundException());
+		Blog blog = blogJPARepository.findById(id).orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", id.toString()));
 		blogJPARepository.delete(blog);
 	}
 }

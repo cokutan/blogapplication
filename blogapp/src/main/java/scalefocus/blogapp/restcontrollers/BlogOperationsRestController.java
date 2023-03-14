@@ -23,22 +23,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import scalefocus.blogapp.domain.Blog;
-import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
+import scalefocus.blogapp.exceptions.UserNotAuthorizedForOperation;
 import scalefocus.blogapp.repository.BlogJPARepository;
 import scalefocus.blogapp.repository.BlogUserRepository;
 import scalefocus.blogapp.service.BlogService;
 
 @RestController
 @RequestMapping("/api/v2")
-@SecurityScheme(
-	      name =    "userBearerHttp",
-	      type = SecuritySchemeType.HTTP,
-	      description = "authentication needed to use blog methods",
-	      scheme = "bearer",
-	      bearerFormat = "JWT"
-	    )
+@SecurityScheme(name = "userBearerHttp", type = SecuritySchemeType.HTTP, description = "authentication needed to use blog methods", scheme = "bearer", bearerFormat = "JWT")
 @RequiredArgsConstructor
+@Slf4j
 public class BlogOperationsRestController {
 	final private BlogService blogService;
 
@@ -53,20 +49,14 @@ public class BlogOperationsRestController {
 			@ApiResponse(responseCode = "500", content = @Content) })
 	public ResponseEntity<List<Blog>> getSummaryListForUser(
 			@Parameter(description = "name of the user to retrieve blogs") @PathVariable String username) {
-		try {
-			List<Blog> blogs = blogService.getBlogSummaryListForUser(username);
+		List<Blog> blogs = blogService.getBlogSummaryListForUser(username);
 
-			if (blogs.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
-
-			return new ResponseEntity<>(blogs, HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		if (blogs.isEmpty()) {
+			log.info("No blogs found for user..........");
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
+
+		return new ResponseEntity<>(blogs, HttpStatus.OK);
 	}
 
 	@GetMapping("/blogs/tags/{tag}")
@@ -76,17 +66,14 @@ public class BlogOperationsRestController {
 			@ApiResponse(responseCode = "500", content = @Content) })
 	public ResponseEntity<List<Blog>> getBlogsWithTag(
 			@Parameter(description = "tag to be used for fetching") @PathVariable String tag) {
-		try {
-			List<Blog> blogs = blogService.getBlogsWithTag(tag);
+		List<Blog> blogs = blogService.getBlogsWithTag(tag);
 
-			if (blogs.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-			}
-
-			return new ResponseEntity<>(blogs, HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		if (blogs.isEmpty()) {
+			log.info("No blogs found for user..........");
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
+
+		return new ResponseEntity<>(blogs, HttpStatus.OK);
 	}
 
 	@PostMapping("/blogs")
@@ -94,17 +81,13 @@ public class BlogOperationsRestController {
 			@ApiResponse(responseCode = "200", description = "Succesfully created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Blog.class))),
 			@ApiResponse(responseCode = "404", description = "User not found", content = @Content),
 			@ApiResponse(responseCode = "500", content = @Content) })
-	public ResponseEntity<Blog> createBlog(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Blog to be created", required = true, content = @Content(schema = @Schema(implementation = Blog.class))) @RequestBody Blog blog, Principal principal) {
-		try {
-			blog.setCreatedBy(blogUserRepository.findFirstByUsername(principal.getName()).get());
-			blog = blogService.createBlog(blog);
+	public ResponseEntity<Blog> createBlog(
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Blog to be created", required = true, content = @Content(schema = @Schema(implementation = Blog.class))) @RequestBody Blog blog,
+			Principal principal) {
+		blog.setCreatedBy(blogUserRepository.findFirstByUsername(principal.getName()).get());
+		blog = blogService.createBlog(blog);
 
-			return new ResponseEntity<>(blog, HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		return new ResponseEntity<>(blog, HttpStatus.OK);
 	}
 
 	@PutMapping("/blogs/{id}")
@@ -117,20 +100,13 @@ public class BlogOperationsRestController {
 			@Parameter(description = "id of blog to be updated") @PathVariable("id") Long id,
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Blog to be updated", required = true, content = @Content(schema = @Schema(implementation = Blog.class))) @RequestBody Blog blog,
 			Principal principal) {
-		try {
-			Optional<Blog> blogOp = blogJPARepository.findById(id);
-			if (blogOp.isPresent()) {
-				if (!isUserAuthorized(principal, blogOp)) {
-					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-				}
+		Optional<Blog> blogOp = blogJPARepository.findById(id);
+		if (blogOp.isPresent()) {
+			if (isUserAuthorized(principal, blogOp, "Update blog", id.toString())) {
 				blog = blogService.updateBlog(id, blog);
 			}
-			return new ResponseEntity<>(blog, HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return new ResponseEntity<>(blog, HttpStatus.OK);
 	}
 
 	@DeleteMapping("/blogs/{id}")
@@ -141,20 +117,13 @@ public class BlogOperationsRestController {
 			@ApiResponse(responseCode = "500", content = @Content) })
 	public ResponseEntity<HttpStatus> deleteBlog(
 			@Parameter(description = "id of blog to be deleted") @PathVariable("id") Long id, Principal principal) {
-		try {
-			Optional<Blog> blogOp = blogJPARepository.findById(id);
-			if (blogOp.isPresent()) {
-				if (!isUserAuthorized(principal, blogOp)) {
-					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-				}
+		Optional<Blog> blogOp = blogJPARepository.findById(id);
+		if (blogOp.isPresent()) {
+			if (isUserAuthorized(principal, blogOp, "Delete Blog", id.toString())) {
 				blogService.deleteBlog(id);
 			}
-			return new ResponseEntity<>(HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PutMapping("/blogs/{id}/tags/{tag}")
@@ -166,24 +135,13 @@ public class BlogOperationsRestController {
 	public ResponseEntity<HttpStatus> attachTag(
 			@Parameter(description = "id of blog to be attached") @PathVariable("id") Long id,
 			@Parameter(description = "tag to attach") @PathVariable("tag") String tag, Principal principal) {
-		try {
-			Optional<Blog> blogOp = blogJPARepository.findById(id);
-			if (blogOp.isPresent()) {
-				if (!isUserAuthorized(principal, blogOp)) {
-					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-				}
+		Optional<Blog> blogOp = blogJPARepository.findById(id);
+		if (blogOp.isPresent()) {
+			if (isUserAuthorized(principal, blogOp, "Attach Tag", id.toString())) {
 				blogService.attachTag(id, tag);
 			}
-			return new ResponseEntity<>(HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-	}
-
-	private boolean isUserAuthorized(Principal principal, Optional<Blog> blogOp) {
-		return blogOp.get().getCreatedBy().getUsername().equals(principal.getName());
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@DeleteMapping("/blogs/{id}/tags/{tag}")
@@ -196,19 +154,20 @@ public class BlogOperationsRestController {
 	public ResponseEntity<HttpStatus> unattachTag(
 			@Parameter(description = "id of blog to be dettached") @PathVariable("id") Long id,
 			@Parameter(description = "tag to be dettached") @PathVariable("tag") String tag, Principal principal) {
-		try {
-			Optional<Blog> blogOp = blogJPARepository.findById(id);
-			if (blogOp.isPresent()) {
-				if (!isUserAuthorized(principal, blogOp)) {
-					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-				}
+		Optional<Blog> blogOp = blogJPARepository.findById(id);
+		if (blogOp.isPresent()) {
+			if (isUserAuthorized(principal, blogOp, "Dettach tag", id.toString())) {
 				blogService.unattachTag(id, tag);
 			}
-			return new ResponseEntity<>(HttpStatus.OK);
-		} catch (BlogAppEntityNotFoundException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	private boolean isUserAuthorized(Principal principal, Optional<Blog> blogOp, String operation, String entityId) {
+		String username = principal.getName();
+		boolean isUserAuthorized = blogOp.get().getCreatedBy().getUsername().equals(username);
+		if (!isUserAuthorized)
+			throw new UserNotAuthorizedForOperation(username, operation, entityId);
+		return true;
 	}
 }

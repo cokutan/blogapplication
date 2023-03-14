@@ -33,11 +33,13 @@ public class AuthenticationService {
 	}
 
 	public AuthenticationResponse authenticate(AuthenticationRequest request) throws BlogAppEntityNotFoundException {
-		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-		var user =  blogUserRepository.findFirstByUsername(request.getUsername()).orElseThrow(()->new BlogAppEntityNotFoundException());
+		authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+		var user = blogUserRepository.findFirstByUsername(request.getUsername()).orElseThrow(
+				() -> new BlogAppEntityNotFoundException(BlogUser.class, "username", request.getUsername()));
 		var jwtToken = jwtService.generateToken(user);
 
- 		return AuthenticationResponse.builder().token(jwtToken).build();
+		return AuthenticationResponse.builder().token(jwtToken).build();
 
 	}
 
