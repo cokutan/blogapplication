@@ -65,13 +65,13 @@
 	<springProfile name="production">
 		<root level="INFO">
 			<appender-ref ref="RollingFile" />
+			<!-- appender-ref ref="Console" / -->
 		</root>
 		<logger name="scalefocus.blogapp" additivity="false"
 			level="ERROR">
 			<appender-ref ref="RollingFile" />
+			<appender-ref ref="Console" />
 		</logger>
-		<logger name="org.hibernate.SQL" level="ERROR" />
-		<logger name="org.hibernate.orm.jdbc.bind" level="ERROR" />
 	</springProfile>
 
 
