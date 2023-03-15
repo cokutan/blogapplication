@@ -1,8 +1,5 @@
 package scalefocus.blogapp.service;
 
-import static io.jsonwebtoken.lang.Collections.arrayToList;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
