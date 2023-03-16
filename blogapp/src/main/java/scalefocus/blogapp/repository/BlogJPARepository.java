@@ -2,6 +2,7 @@ package scalefocus.blogapp.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +18,7 @@ public interface BlogJPARepository extends JpaRepository<Blog, Long> {
     	where bu.username = :username
     	order by b.id
     	""")
-    List<Blog> findBlogSummaryByUser(@Param("username") String username);
+    List<Blog> findBlogSummaryByUser(@Param("username") String username, Pageable pageable);
 
     List<Blog> findByBlogtags_Tag(String tag);
 }
