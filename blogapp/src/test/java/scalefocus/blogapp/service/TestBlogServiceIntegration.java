@@ -56,7 +56,7 @@ class TestBlogServiceIntegration {
 				"The following table lists the supported databases and their tested versions. ... Changing database locking timeout in a cluster configuration."));
 		blogService.createBlog(new Blog().setCreatedBy(blogUser).setTitle("title_test").setBody(
 				" A convenient way to fix a defective complex sql-query in a service that causes a functional test to fail is to inspect the database state"));
-		List<Blog> summaryList = blogService.getBlogSummaryListForUser("aliveli");
+		List<Blog> summaryList = blogService.getBlogSummaryListForUser("aliveli", 0, 10);
 		assertThat(summaryList).filteredOn("body", "The following table ").isNotEmpty();
 		assertThat(summaryList).filteredOn("body", " A convenient way to").isNotEmpty();
 	}

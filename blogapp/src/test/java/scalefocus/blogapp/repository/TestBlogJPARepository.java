@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.transaction.Transactional;
@@ -34,7 +35,7 @@ class TestBlogJPARepository {
 	@Test
 	void test_findBlogSummaryByUser() {
 
-		List<Blog> actual = repository.findBlogSummaryByUser("aliveli");
+		List<Blog> actual = repository.findBlogSummaryByUser("aliveli", Pageable.ofSize(10));
 		assertThat(actual).singleElement();
 		Blog blogSummary = actual.get(0);
 		assertThat(blogSummary.getBody()).isEqualTo("Lorem ipsum dolor si");
