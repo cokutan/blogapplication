@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.transaction.Transactional;
 import scalefocus.blogapp.domain.Blog;
+import scalefocus.blogapp.repository.sqldb.BlogJPARepository;
 
 @SpringBootTest
 @ActiveProfiles("test")

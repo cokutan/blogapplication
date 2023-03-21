@@ -10,7 +10,7 @@ import scalefocus.blogapp.config.JwtService;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.domain.Role;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
-import scalefocus.blogapp.repository.BlogUserRepository;
+import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
 
 @Service
 @RequiredArgsConstructor

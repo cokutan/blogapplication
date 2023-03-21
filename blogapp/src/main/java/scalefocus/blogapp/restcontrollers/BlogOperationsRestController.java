@@ -19,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.exceptions.UserNotAuthorizedForOperation;
-import scalefocus.blogapp.repository.BlogJPARepository;
-import scalefocus.blogapp.repository.BlogUserRepository;
+import scalefocus.blogapp.repository.sqldb.BlogJPARepository;
+import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
 import scalefocus.blogapp.service.BlogService;
 
 @RestController

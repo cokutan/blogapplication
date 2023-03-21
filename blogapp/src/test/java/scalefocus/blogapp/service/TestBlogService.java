@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.annotation.Testable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.ActiveProfiles;
 
 import mockit.Expectations;
@@ -16,9 +17,9 @@ import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogTag;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
-import scalefocus.blogapp.repository.BlogJPARepository;
-import scalefocus.blogapp.repository.BlogTagRepository;
-import scalefocus.blogapp.repository.BlogUserRepository;
+import scalefocus.blogapp.repository.sqldb.BlogJPARepository;
+import scalefocus.blogapp.repository.sqldb.BlogTagRepository;
+import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
 
 @Testable
 @ActiveProfiles("test")
@@ -35,6 +36,8 @@ class TestBlogService {
 
 	@Injectable
 	BlogTagRepository blogTagRepository;
+	@Injectable
+	ApplicationEventPublisher applicationEventPublisher;
 
 	private BlogUser blogUser = new BlogUser().setUsername("aliveli");
 

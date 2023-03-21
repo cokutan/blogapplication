@@ -1,4 +1,4 @@
-package scalefocus.blogapp.repository;
+package scalefocus.blogapp.repository.sqldb;
 
 import java.util.List;
 

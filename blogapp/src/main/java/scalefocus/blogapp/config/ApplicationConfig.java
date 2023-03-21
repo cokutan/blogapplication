@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import lombok.RequiredArgsConstructor;
-import scalefocus.blogapp.repository.BlogUserRepository;
+import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
 
 @Configuration
 @RequiredArgsConstructor
