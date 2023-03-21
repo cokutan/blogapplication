@@ -24,6 +24,7 @@ import lombok.experimental.Accessors;
 public class Blog implements BlogAppEntity {
 
     @Id
+    @org.springframework.data.annotation.Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "blog_seq")
     @SequenceGenerator(allocationSize = 1, name = "blog_seq")
     private Long id;

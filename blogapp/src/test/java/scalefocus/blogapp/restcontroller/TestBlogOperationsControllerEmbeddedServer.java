@@ -2,13 +2,21 @@ package scalefocus.blogapp.restcontroller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Condition;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.opensearch.core.SearchRequest;
+import org.opensearch.client.opensearch.core.SearchResponse;
+import org.opensearch.client.opensearch.core.search.Hit;
+import org.opensearch.client.opensearch.core.search.HitsMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -22,13 +30,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import scalefocus.blogapp.auth.AuthenticationRequest;
 import scalefocus.blogapp.auth.AuthenticationResponse;
+import scalefocus.blogapp.containers.OpenSearchTestContainer;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.exceptions.ApiError;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
-import scalefocus.blogapp.repository.BlogUserRepository;
+import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
 import scalefocus.blogapp.restcontrollers.BlogOperationsRestController;
 import scalefocus.blogapp.service.BlogService;
 
@@ -39,8 +50,7 @@ import scalefocus.blogapp.service.BlogService;
 
 // SpringBootTest launch an instance of our application for tests purposes
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-//@WithMockUser
+@ActiveProfiles("testcontainers")
 @Import(BlogOperationsRestController.class)
 class TestBlogOperationsControllerEmbeddedServer {
     @Autowired
@@ -61,11 +71,23 @@ class TestBlogOperationsControllerEmbeddedServer {
 
     @Autowired
     private BlogUserRepository blogUserRepository;
+    @Autowired
+    private OpenSearchClient client;
 
     private BlogUser blogUser;
 
     private String bearerToken;
 
+    private final static OpenSearchTestContainer openSearchTestContainer = new OpenSearchTestContainer();
+
+    static {
+        openSearchTestContainer.start();
+    }
+
+    @DynamicPropertySource
+    static void setDynamicProperties(DynamicPropertyRegistry registry) {
+        registry.add("${opensearch.host.port}", () -> openSearchTestContainer.getMappedPort(9200));
+    }
     @BeforeEach
     public void login() {
         AuthenticationResponse response = restTemplate.postForObject(
@@ -122,7 +144,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     }
 
     @Test
-    void createBlog() {
+    void createBlog() throws IOException, InterruptedException {
         Condition<Blog> nonNullID = new Condition<>(m -> m.getId() != null && m.getId() != 0, "nonNullID");
 
         Blog body = restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs", HttpMethod.POST,
@@ -130,6 +152,17 @@ class TestBlogOperationsControllerEmbeddedServer {
                         new Blog().setCreatedBy(blogUser).setTitle("another title").setBody("another body")),
                 Blog.class).getBody();
         assertThat(body).isNotNull().has(nonNullID);
+
+
+        SearchRequest searchRequest = new SearchRequest.Builder().query(q -> q.match(m -> m.field("title")
+                        .query(FieldValue.of("another title"))))
+                .build();
+        SearchResponse<Blog> searchResponse = client.search(searchRequest, Blog.class);
+        HitsMetadata<Blog> hits = searchResponse.hits();
+        List<Hit<Blog>> hitList = hits.hits();
+        Hit<Blog> blogHit = hitList.get(0);
+        Blog actual = blogHit.source();
+        assertThat(actual).hasFieldOrPropertyWithValue("title", "another title");
     }
 
     @Test
@@ -174,5 +207,11 @@ class TestBlogOperationsControllerEmbeddedServer {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("authorization", bearerToken);
         return new HttpEntity<>(body, headers);
+    }
+
+
+    @AfterAll
+    public static void afterAll() {
+            openSearchTestContainer.stop();
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +13,11 @@ import lombok.RequiredArgsConstructor;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogTag;
 import scalefocus.blogapp.domain.BlogUser;
+import scalefocus.blogapp.events.BlogCreatedEvent;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
-import scalefocus.blogapp.repository.BlogJPARepository;
-import scalefocus.blogapp.repository.BlogTagRepository;
-import scalefocus.blogapp.repository.BlogUserRepository;
+import scalefocus.blogapp.repository.sqldb.BlogJPARepository;
+import scalefocus.blogapp.repository.sqldb.BlogTagRepository;
+import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -26,12 +28,16 @@ public class BlogService {
 
     final private BlogTagRepository blogTagRepository;
 
-    @Transactional
+    final private ApplicationEventPublisher applicationEventPublisher;
+
+    @Transactional()
     public Blog createBlog(Blog blog) throws BlogAppEntityNotFoundException {
         String username = blog.getCreatedBy().getUsername();
         blogUserRepository.findFirstByUsername(username).ifPresentOrElse((value) -> blog.setCreatedBy(value), () ->
                 new BlogAppEntityNotFoundException(BlogUser.class, "username", username)
         );
+        final BlogCreatedEvent event = new BlogCreatedEvent(blog);
+        applicationEventPublisher.publishEvent(event);
         return blogJPARepository.save(blog);
     }
 
