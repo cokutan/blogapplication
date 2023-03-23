@@ -47,6 +47,8 @@
 		<logger name="org.hibernate.SQL" level="DEBUG" />
 		<logger name="org.hibernate.orm.jdbc.bind" level="TRACE" />
 		<logger name="org.opensearch.client" level="TRACE" />
+		<logger name="org.springframework.transaction.interceptor" level="TRACE" />
+		<logger name="org.springframework.transaction.support" level="DEBUG" />
 	</springProfile>
 
 	<springProfile name="testcontainers">
@@ -63,6 +65,8 @@
 		<logger name="org.hibernate.orm.jdbc.bind" level="TRACE" />
 		<logger name="org.opensearch.client" level="TRACE" />
 		<logger name="org.testcontainers" level="INFO"/>
+		<logger name="org.springframework.transaction.interceptor" level="TRACE" />
+		<logger name="org.springframework.transaction.support" level="DEBUG" />
 		<!-- The following logger can be used for containers logs since 1.18.0 -->
 		<logger name="tc" level="INFO"/>
 		<logger name="com.github.dockerjava" level="WARN"/>
