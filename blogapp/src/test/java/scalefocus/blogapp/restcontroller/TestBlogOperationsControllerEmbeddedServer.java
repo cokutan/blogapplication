@@ -144,7 +144,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     }
 
     @Test
-    void createBlog() throws IOException, InterruptedException {
+    void createBlog() throws IOException {
         Condition<Blog> nonNullID = new Condition<>(m -> m.getId() != null && m.getId() != 0, "nonNullID");
 
         Blog body = restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs", HttpMethod.POST,
@@ -153,7 +153,10 @@ class TestBlogOperationsControllerEmbeddedServer {
                 Blog.class).getBody();
         assertThat(body).isNotNull().has(nonNullID);
 
+        checkOpenSearchForIndexCreation();
+    }
 
+    private void checkOpenSearchForIndexCreation() throws IOException {
         SearchRequest searchRequest = new SearchRequest.Builder().query(q -> q.match(m -> m.field("title")
                         .query(FieldValue.of("another title"))))
                 .build();
@@ -178,13 +181,23 @@ class TestBlogOperationsControllerEmbeddedServer {
     }
 
     @Test
-    void deleteBlog() throws BlogAppEntityNotFoundException {
+    void deleteBlog() throws BlogAppEntityNotFoundException, IOException {
         Map<String, String> params = new HashMap<>();
         params.put("id", "1");
         restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/1", HttpMethod.DELETE,
                 createEntityForRestTemplate(null), Blog.class, params);
         Condition<Blog> deletedBlog = new Condition<>(m -> Long.valueOf(1).equals(m.getId()), "deletedBlog");
         assertThat(blogService.getBlogSummaryListForUser("aliveli", 0, 10)).areNot(deletedBlog);
+
+        checkOpenSearchForDeletion();
+    }
+
+    private void checkOpenSearchForDeletion() throws IOException {
+        SearchRequest searchRequest = new SearchRequest.Builder().query(q -> q.match(m -> m.field("id")
+                        .query(FieldValue.of(1))))
+                .build();
+        SearchResponse<Blog> searchResponse = client.search(searchRequest, Blog.class);
+        assertThat(searchResponse.hits().hits()).isEmpty();
     }
 
     @Test

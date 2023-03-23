@@ -16,6 +16,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Entity
@@ -36,9 +37,10 @@ public class Blog implements BlogAppEntity {
     private String body;
 
     @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_blog_user"), nullable = false, name = "created_by")
-    @ManyToOne(cascade = {}, targetEntity = BlogUser.class)
+    @ManyToOne(targetEntity = BlogUser.class)
     private BlogUser createdBy;
 
+    @ToString.Exclude
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH })
     @JoinTable(name = "BLOG_TAG_MM", joinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog"), name = "BLOG_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(foreignKey = @ForeignKey(name = "FK_blog_tag_mm_blog_tag"), name = "BLOG_TAG_ID", referencedColumnName = "ID"))
     private List<BlogTag> blogtags = new ArrayList<>();

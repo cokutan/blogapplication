@@ -1,23 +1,22 @@
 package scalefocus.blogapp.service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogTag;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.events.BlogCreatedEvent;
+import scalefocus.blogapp.events.BlogDeletedEvent;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.repository.sqldb.BlogJPARepository;
 import scalefocus.blogapp.repository.sqldb.BlogTagRepository;
 import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +55,7 @@ public class BlogService {
     }
 
     private void touchTags(List<Blog> blogsWithTag) {
-        blogsWithTag.stream().map(Blog::getBlogtags).flatMap(List::stream).collect(Collectors.toList());
+        blogsWithTag.stream().map(Blog::getBlogtags).flatMap(List::stream).toList();
     }
 
     @Transactional
@@ -76,23 +75,22 @@ public class BlogService {
 
         blog.getBlogtags().remove(blogtag);
 
-        return;
     }
 
     @Transactional
     public void attachTag(Long blogId, String tag) throws BlogAppEntityNotFoundException {
         Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", blogId.toString()));
         BlogTag blogtag = Optional.ofNullable(blogTagRepository.findByTag(tag))
-                .orElse(blogTagRepository.save(new BlogTag().setId(0l).setTag(tag)));
+                .orElse(blogTagRepository.save(new BlogTag().setId(0L).setTag(tag)));
 
         blog.getBlogtags().add(blogtag);
 
-        return;
     }
 
     @Transactional
     public void deleteBlog(Long id) throws BlogAppEntityNotFoundException {
         Blog blog = blogJPARepository.findById(id).orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", id.toString()));
         blogJPARepository.delete(blog);
+        applicationEventPublisher.publishEvent(new BlogDeletedEvent(blog));
     }
 }
