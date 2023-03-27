@@ -52,6 +52,24 @@ public class BlogOperationsRestController {
         return new ResponseEntity<>(blogs, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/blogs/search")
+    @Operation(summary = "Get a list of summary of blogs created by given user", tags = {"blogs"}, responses = {
+            @ApiResponse(responseCode = "200", description = "Succesfully retrieved", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Blog.class))),
+            @ApiResponse(responseCode = "204", description = "Succesfully retrieved with no content", content = @Content),
+            @ApiResponse(responseCode = "404", content = @Content),
+            @ApiResponse(responseCode = "500", content = @Content)})
+    public ResponseEntity<List<Blog>> getSummaryListForUser(
+            @Parameter(description = "term to be searched in title description or tags") @RequestParam(value = "term", required = true) String term) {
+        List<Blog> blogs = blogService.getBlogSearchResults(term);
+
+        if (blogs.isEmpty()) {
+            log.info("No blogs found for term..........");
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(blogs, HttpStatus.OK);
+    }
+
     @GetMapping("/blogs/tags/{tag}")
     @Operation(summary = "Get a list of blogs attached to a the given tag", tags = {"blogs", "tags"}, responses = {
             @ApiResponse(responseCode = "200", description = "Succesfully retrieved", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Blog.class))),

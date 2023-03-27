@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import scalefocus.blogapp.repository.opensearch.BlogElasticSearchRepository;
 
 @SpringBootApplication(exclude = {ElasticsearchDataAutoConfiguration.class})
 @EnableAutoConfiguration
