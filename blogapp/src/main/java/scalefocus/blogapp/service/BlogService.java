@@ -10,7 +10,9 @@ import scalefocus.blogapp.domain.BlogTag;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.events.BlogCreatedEvent;
 import scalefocus.blogapp.events.BlogDeletedEvent;
+import scalefocus.blogapp.events.BlogUpdatedEvent;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
+import scalefocus.blogapp.repository.opensearch.BlogOpenSearchRepository;
 import scalefocus.blogapp.repository.sqldb.BlogJPARepository;
 import scalefocus.blogapp.repository.sqldb.BlogTagRepository;
 import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
@@ -26,6 +28,8 @@ public class BlogService {
     final private BlogJPARepository blogJPARepository;
 
     final private BlogTagRepository blogTagRepository;
+
+    final private BlogOpenSearchRepository blogOpenSearchRepository;
 
     final private ApplicationEventPublisher applicationEventPublisher;
 
@@ -64,7 +68,13 @@ public class BlogService {
         blog.setTitle(blogData.getTitle());
         blog.setBody(blogData.getBody());
         touchTags(List.of(blog));
+        fireUpdateEvent(blog);
         return blog;
+    }
+
+    private void fireUpdateEvent(Blog blog) {
+        final BlogUpdatedEvent event = new BlogUpdatedEvent(blog);
+        applicationEventPublisher.publishEvent(event);
     }
 
     @Transactional
@@ -74,23 +84,28 @@ public class BlogService {
                 .orElseThrow(() -> new BlogAppEntityNotFoundException(BlogTag.class, "tag", tag));
 
         blog.getBlogtags().remove(blogtag);
-
+        fireUpdateEvent(blog);
     }
 
     @Transactional
     public void attachTag(Long blogId, String tag) throws BlogAppEntityNotFoundException {
         Blog blog = blogJPARepository.findById(blogId).orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", blogId.toString()));
         BlogTag blogtag = Optional.ofNullable(blogTagRepository.findByTag(tag))
-                .orElse(blogTagRepository.save(new BlogTag().setId(0L).setTag(tag)));
+                .orElseGet(()->blogTagRepository.save(new BlogTag().setId(0L).setTag(tag)));
 
         blog.getBlogtags().add(blogtag);
-
+        fireUpdateEvent(blog);
     }
 
     @Transactional
     public void deleteBlog(Long id) throws BlogAppEntityNotFoundException {
         Blog blog = blogJPARepository.findById(id).orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", id.toString()));
         blogJPARepository.delete(blog);
+        touchTags(List.of(blog));
         applicationEventPublisher.publishEvent(new BlogDeletedEvent(blog));
+    }
+
+    public List<Blog> getBlogSearchResults(String term) {
+        return blogOpenSearchRepository.search(term);
     }
 }

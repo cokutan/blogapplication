@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.Refresh;
-import org.opensearch.client.opensearch.core.DeleteRequest;
-import org.opensearch.client.opensearch.core.IndexRequest;
-import org.opensearch.client.opensearch.core.SearchRequest;
-import org.opensearch.client.opensearch.core.SearchResponse;
+import org.opensearch.client.opensearch.core.*;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.opensearch.client.opensearch.core.search.HitsMetadata;
 import org.opensearch.client.opensearch.indices.CreateIndexRequest;
@@ -22,7 +19,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class BlogElasticSearchRepository {
+public class BlogOpenSearchRepository {
 
     final private OpenSearchClient openSearchClient;
 
@@ -41,9 +38,21 @@ public class BlogElasticSearchRepository {
         }
     }
 
-    public List<Blog> search(String toBeSearched) {
+    public void update(Blog blog) {
 
-        SearchRequest searchRequest = new SearchRequest.Builder().query(q -> q.match(m -> m.field(toBeSearched).query(FieldValue.of(toBeSearched)))).build();
+        UpdateRequest<Blog, Blog> updateRequest = new UpdateRequest.Builder<Blog, Blog>().refresh(Refresh.True).index(BLOG).id(blog.getId().toString()).upsert(blog).doc(blog).build();
+        try {
+            openSearchClient.update(updateRequest, Blog.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Blog> search(String toBeSearched) {
+        SearchRequest searchRequest = new SearchRequest.Builder().query(m -> m.bool(k ->
+                k.should(t -> t.match(c -> c.field("title").query(FieldValue.of(toBeSearched))))
+                        .should(z -> z.match(f -> f.field("body").query(FieldValue.of(toBeSearched))))
+                        .should(v -> v.match(f -> f.field("blogtags.tag").query(FieldValue.of(toBeSearched)))))).index(BLOG).build();
         SearchResponse<Blog> searchResponse;
         try {
             searchResponse = openSearchClient.search(searchRequest, Blog.class);

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import scalefocus.blogapp.events.BlogDeletedEvent;
-import scalefocus.blogapp.repository.opensearch.BlogElasticSearchRepository;
+import scalefocus.blogapp.repository.opensearch.BlogOpenSearchRepository;
 
 
 @Component
@@ -14,7 +14,7 @@ import scalefocus.blogapp.repository.opensearch.BlogElasticSearchRepository;
 @RequiredArgsConstructor
 public class BlogDeletedEventListener {
 
-    private final BlogElasticSearchRepository blogElasticSearchRepository;
+    private final BlogOpenSearchRepository blogElasticSearchRepository;
 
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

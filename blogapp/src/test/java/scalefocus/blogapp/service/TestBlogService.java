@@ -19,6 +19,7 @@ import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.events.BlogCreatedEvent;
 import scalefocus.blogapp.events.BlogDeletedEvent;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
+import scalefocus.blogapp.repository.opensearch.BlogOpenSearchRepository;
 import scalefocus.blogapp.repository.sqldb.BlogJPARepository;
 import scalefocus.blogapp.repository.sqldb.BlogTagRepository;
 import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
@@ -41,6 +42,9 @@ class TestBlogService {
 
     @Injectable
     ApplicationEventPublisher applicationEventPublisher;
+
+    @Injectable
+    BlogOpenSearchRepository blogOpenSearchRepository;
 
     private final BlogUser blogUser = new BlogUser().setUsername("aliveli");
 
