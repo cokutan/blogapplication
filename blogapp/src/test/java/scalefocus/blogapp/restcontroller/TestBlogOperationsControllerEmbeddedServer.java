@@ -238,8 +238,6 @@ class TestBlogOperationsControllerEmbeddedServer {
     }
 
     private void checkOpenSearchForDeletion(String field, String value) throws IOException {
-        client.indices().clearCache();
-        client.indices().refresh();
         SearchRequest searchRequest = new SearchRequest.Builder().query(q -> q.match(m -> m.field(field).query(FieldValue.of(value)))).requestCache(false).index("blog").build();
         SearchResponse<Blog> searchResponse = client.search(searchRequest, Blog.class);
         assertThat(searchResponse.hits().hits()).isEmpty();
