@@ -1,7 +1,7 @@
 
 # How to Run Blog App
 
-1. Build the project with gradle task `bootJar`.
+1. Build the project with gradle task `build`.
 
 2. Just from the root directory of the project run command
 
