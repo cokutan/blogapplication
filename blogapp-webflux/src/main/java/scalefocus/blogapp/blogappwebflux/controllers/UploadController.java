@@ -57,13 +57,9 @@ public class UploadController {
                 .then();
     }
 
-    private static String getFilePartFileType(String fileName, byte[] fewBytes) throws Exception {
-        String mimeType;
-        Tika tika = new Tika();
-        CompletableFuture<String> mimeTypeFuture = CompletableFuture.supplyAsync(() -> tika.detect(fewBytes, fileName), Executors.newCachedThreadPool());
-        mimeType = mimeTypeFuture.get();
-        return mimeType;
+    @DeleteMapping("/delete")
+    public Mono<Void> delete(@RequestParam(required = true) Long attachmentFileId) {
+        return databaseFileService.deleteAttachmentFileById(attachmentFileId);
     }
-
 
 }
