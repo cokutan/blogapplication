@@ -16,9 +16,9 @@ public class OpenSearchTestContainer extends GenericContainer<OpenSearchTestCont
         withEnv("DISABLE_INSTALL_DEMO_CONFIG", "true");
         withEnv("DISABLE_SECURITY_PLUGIN", "true");
         withCreateContainerCmdModifier(cmd -> cmd.withName("opensearch-tescontainer"));
-       /* setWaitStrategy((new HttpWaitStrategy())
+        setWaitStrategy((new HttpWaitStrategy())
                 .forPort(9200)
-                .forStatusCodeMatching(r -> r == 200 || r == 401))*/;
+                .forStatusCodeMatching(r -> r == 200 || r == 401));
     }
 
 }

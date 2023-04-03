@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 
 @RestController
-@RequestMapping("/api/v2/auth")
+@RequestMapping("/api/v3/auth")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationController {

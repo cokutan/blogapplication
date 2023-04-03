@@ -87,7 +87,7 @@ class TestBlogOperationsControllerEmbeddedServer {
 
     @BeforeEach
     public void login() {
-        AuthenticationResponse response = restTemplate.postForObject("http://localhost:" + port + "/api/v2/auth/authenticate",
+        AuthenticationResponse response = restTemplate.postForObject("http://localhost:" + port + "/api/v3/auth/authenticate",
                 AuthenticationRequest.builder().password("Veli").username("aliveli").build(), AuthenticationResponse.class);
         blogUser = blogUserRepository.findFirstByUsername("aliveli").get();
         bearerToken = "Bearer " + response.getToken();
@@ -105,7 +105,7 @@ class TestBlogOperationsControllerEmbeddedServer {
         Map<String, Integer> params = new HashMap<>();
         params.put("page", 0);
         params.put("size", 10);
-        List<Blog> body = restTemplate.exchange("http://localhost:" + port + "/api/v2/users/aliveli/blogs?page=0&size=10",
+        List<Blog> body = restTemplate.exchange("http://localhost:" + port + "/api/v3/users/aliveli/blogs?page=0&size=10",
                 HttpMethod.GET, createEntityForRestTemplate(null), List.class, params).getBody();
         assertThat(body).isNotEmpty();
     }
@@ -114,7 +114,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     @SuppressWarnings(value = {"unchecked"})
     void getUserBlogsWithoutPagingParameters() {
         Map<String, Integer> params = new HashMap<>();
-        List<Blog> body = restTemplate.exchange("http://localhost:" + port + "/api/v2/users/aliveli/blogs",
+        List<Blog> body = restTemplate.exchange("http://localhost:" + port + "/api/v3/users/aliveli/blogs",
                 HttpMethod.GET, createEntityForRestTemplate(null), List.class, params).getBody();
         assertThat(body).isNotEmpty();
     }
@@ -124,7 +124,7 @@ class TestBlogOperationsControllerEmbeddedServer {
         Map<String, String> params = new HashMap<>();
         params.put("page", "0");
         params.put("size", "10");
-        ApiError body = restTemplate.exchange("http://localhost:" + port + "/api/v2/users/nonexistinguser/blogs?page=0&size=10",
+        ApiError body = restTemplate.exchange("http://localhost:" + port + "/api/v3/users/nonexistinguser/blogs?page=0&size=10",
                 HttpMethod.GET, createEntityForRestTemplate(null), ApiError.class, params).getBody();
         assertThat(body).extracting("status").isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(body).extracting("message").isEqualTo("BlogUser was not found for parameters {username=nonexistinguser}");
@@ -133,7 +133,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     @Test
     @SuppressWarnings(value = {"unchecked"})
     void getBlogsWithTag() {
-        List<Blog> body = restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/tags/First Tag",
+        List<Blog> body = restTemplate.exchange("http://localhost:" + port + "/api/v3/blogs/tags/First Tag",
                 HttpMethod.GET, createEntityForRestTemplate(null), List.class).getBody();
         assertThat(body).isNotEmpty();
     }
@@ -144,15 +144,15 @@ class TestBlogOperationsControllerEmbeddedServer {
         Map<String, Integer> params = new HashMap<>();
         params.put("page", 0);
         params.put("size", 10);
-        List<Blog> body = restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/search?term=Sausage",
+        List<Blog> body = restTemplate.exchange("http://localhost:" + port + "/api/v3/blogs/search?term=Sausage",
                 HttpMethod.GET, createEntityForRestTemplate(null), List.class, params).getBody();
         assertThat(body).hasSize(4);
 
-        body = restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/search?term=Aubergine",
+        body = restTemplate.exchange("http://localhost:" + port + "/api/v3/blogs/search?term=Aubergine",
                 HttpMethod.GET, createEntityForRestTemplate(null), List.class, params).getBody();
         assertThat(body).hasSize(3);
 
-        HttpStatusCode statusCode = restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/search?term=nonexistent",
+        HttpStatusCode statusCode = restTemplate.exchange("http://localhost:" + port + "/api/v3/blogs/search?term=nonexistent",
                 HttpMethod.GET, createEntityForRestTemplate(null), List.class, params).getStatusCode();
         assertThat(statusCode.value()).isEqualTo(HttpStatus.NO_CONTENT.value());
 
@@ -181,7 +181,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     void createBlog() throws IOException {
         Condition<Blog> nonNullID = new Condition<>(m -> m.getId() != null && m.getId() != 0, "nonNullID");
 
-        Blog body = restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs",
+        Blog body = restTemplate.exchange("http://localhost:" + port + "/api/v3/blogs",
                 HttpMethod.POST, createEntityForRestTemplate(new Blog().setCreatedBy(blogUser).setTitle("another title").setBody("another body")), Blog.class).getBody();
         assertThat(body).isNotNull().has(nonNullID);
 
@@ -217,7 +217,7 @@ class TestBlogOperationsControllerEmbeddedServer {
         Blog blogU = new Blog().setCreatedBy(blogUser).setTitle("newTitle").setBody("newBody");
         Map<String, String> params = new HashMap<>();
         params.put("id", "1");
-        restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/1", HttpMethod.PUT, createEntityForRestTemplate(blogU), Blog.class, params);
+        restTemplate.exchange("http://localhost:" + port + "/api/v3/blogs/1", HttpMethod.PUT, createEntityForRestTemplate(blogU), Blog.class, params);
         Condition<Blog> updatedBlog = new Condition<>(m -> "newTitle".equals(m.getTitle()) && "newBody".equals(m.getBody()), "updatedBlog");
         assertThat(blogService.getBlogSummaryListForUser("aliveli", 0, 10)).areAtLeastOne(updatedBlog);
 
@@ -230,7 +230,7 @@ class TestBlogOperationsControllerEmbeddedServer {
         Map<String, String> params = new HashMap<>();
         String id = blog.getId().toString();
         params.put("id", id);
-        restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/" + id, HttpMethod.DELETE, createEntityForRestTemplate(null), Blog.class, params);
+        restTemplate.exchange("http://localhost:" + port + "/api/v3/blogs/" + id, HttpMethod.DELETE, createEntityForRestTemplate(null), Blog.class, params);
         Condition<Blog> deletedBlog = new Condition<>(m -> Long.valueOf(id).equals(m.getId()), "deletedBlog");
         assertThat(blogService.getBlogSummaryListForUser("aliveli", 0, 10)).areNot(deletedBlog);
 
@@ -248,13 +248,13 @@ class TestBlogOperationsControllerEmbeddedServer {
         Map<String, String> params = new HashMap<>();
         params.put("id", "1");
         params.put("tag", "My RestController Test Tag");
-        restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/{id}/tags/{tag}",
+        restTemplate.exchange("http://localhost:" + port + "/api/v3/blogs/{id}/tags/{tag}",
                 HttpMethod.PUT, createEntityForRestTemplate(null), ResponseEntity.class, params);
 
         assertThat(blogService.getBlogsWithTag("My RestController Test Tag")).isNotEmpty();
         checkOpenSearchForBlogTags("My RestController Test Tag");
 
-        restTemplate.exchange("http://localhost:" + port + "/api/v2/blogs/{id}/tags/{tag}",
+        restTemplate.exchange("http://localhost:" + port + "/api/v3/blogs/{id}/tags/{tag}",
                 HttpMethod.DELETE, createEntityForRestTemplate(null), ResponseEntity.class, params);
         assertThat(blogService.getBlogsWithTag("My RestController Test Tag")).isEmpty();
         checkOpenSearchForDeletion("blogtags.tag", "My RestController Test");

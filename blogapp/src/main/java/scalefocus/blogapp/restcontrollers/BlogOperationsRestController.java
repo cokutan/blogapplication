@@ -24,7 +24,7 @@ import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
 import scalefocus.blogapp.service.BlogService;
 
 @RestController
-@RequestMapping("/api/v2")
+@RequestMapping("/api/v3")
 @SecurityScheme(name = "userBearerHttp", type = SecuritySchemeType.HTTP, description = "authentication needed to use blog methods", scheme = "bearer", bearerFormat = "JWT")
 @RequiredArgsConstructor
 @Slf4j
