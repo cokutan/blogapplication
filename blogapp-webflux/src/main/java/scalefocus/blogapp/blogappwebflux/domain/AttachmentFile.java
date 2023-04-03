@@ -27,11 +27,11 @@ public class AttachmentFile {
         this.file = ba;
         this.blogId = blogId;
         this.filename = filename;
-        ImageFormats.as(mimeType).ifPresent(t -> this.format = t.getType());
-        VideoFormats.as(mimeType).ifPresent(t -> this.format = t.getType());
+        ImageFormats.as(mimeType).ifPresent(t -> this.format = t.name());
+        VideoFormats.as(mimeType).ifPresent(t -> this.format = t.name());
     }
 
     public boolean isImage() {
-        return Arrays.stream(ImageFormats.values()).anyMatch(t -> t.getType() == format);
+        return Arrays.stream(ImageFormats.values()).anyMatch(t -> t.name() == format);
     }
 }
