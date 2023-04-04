@@ -15,8 +15,8 @@ import reactor.core.publisher.Mono;
 import scalefocus.blogapp.blogappwebflux.domain.AttachmentFile;
 import scalefocus.blogapp.blogappwebflux.repositories.AttachementFileRepository;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
+import java.io.IOException;
+import java.io.InputStream;
 
 @RestController
 @RequestMapping("/api/v3/blogs/file")
@@ -27,13 +27,18 @@ public class UploadController {
     private final AttachementFileRepository databaseFileService;
 
     @PostMapping("/upload")
-    public Mono<Void> upload(@RequestPart("files") Flux<FilePart> filePartFlux, @RequestParam(required = true) Long blogId, @RequestParam(required = false) ResizeResolution resizeResolution) {
+    public Mono<Void> upload(@RequestPart("files") Flux<FilePart> filePartFlux, @RequestParam Long blogId, @RequestParam(required = false) ResizeResolution resizeResolution) {
 
         return filePartFlux
-                .doOnNext(fp -> System.out.println(fp.filename()))
                 .flatMap(fp -> DataBufferUtils.join(fp.content()).map(dataBuffer -> {
-                    var bytes = dataBuffer.asByteBuffer().array();
-                    dataBuffer.read(bytes);
+                    byte[] bytes;
+                    try {
+                        InputStream inputStream = dataBuffer.asInputStream();
+                        bytes = inputStream.readAllBytes();
+                        inputStream.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     DataBufferUtils.release(dataBuffer);
                     Tika tika = new Tika();
                     String mimeType = tika.detect(bytes);
@@ -43,7 +48,6 @@ public class UploadController {
                 .doOnNext(m -> {
                     if (resizeResolution != null) {
                         try {
-
                             if (m.isImage())
                                 m.setFile(new IVCompressor().resizeImage(m.getFile(), ImageFormats.valueOf(m.getFormat()), resizeResolution));
                             else
@@ -58,7 +62,7 @@ public class UploadController {
     }
 
     @DeleteMapping("/delete")
-    public Mono<Void> delete(@RequestParam(required = true) Long attachmentFileId) {
+    public Mono<Void> delete(@RequestParam Long attachmentFileId) {
         return databaseFileService.deleteAttachmentFileById(attachmentFileId);
     }
 

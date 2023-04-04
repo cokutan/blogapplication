@@ -8,5 +8,5 @@ import scalefocus.blogapp.domain.BlogUser;
 
 public interface BlogUserRepository extends JpaRepository<BlogUser, Long> {
     Optional<BlogUser> findFirstByUsername(String username);
-
+    boolean existsByUsername(String username);
 }

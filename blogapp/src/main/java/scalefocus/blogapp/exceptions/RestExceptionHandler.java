@@ -18,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 @ControllerAdvice
 @Slf4j
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+
+	public static final String AN_EXCEPTION_OCCURED_WHICH_WILL_CAUSE_A_RESPONSE = "An exception occured, which will cause a {} response";
+
 	/**
 	 * Handles BlogAppEntityNotFoundException. Created to encapsulate errors with
 	 * more detail than javax.persistence.EntityNotFoundException.
@@ -29,7 +32,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<Object> handleEntityNotFound(BlogAppEntityNotFoundException ex) {
 		ApiError apiError = new ApiError(NOT_FOUND);
 		apiError.setMessage(ex.getMessage());
-		log.warn("An exception occured, which will cause a {} response", NOT_FOUND, ex);
+		log.warn(AN_EXCEPTION_OCCURED_WHICH_WILL_CAUSE_A_RESPONSE, NOT_FOUND, ex);
 		return buildResponseEntity(apiError);
 	}
 
@@ -44,7 +47,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<Object> handleUserNotAuthorizedFound(UserNotAuthorizedForOperation ex) {
 		ApiError apiError = new ApiError(FORBIDDEN);
 		apiError.setMessage(ex.getMessage());
-		log.warn("An exception occured, which will cause a {} response", FORBIDDEN, ex);
+		log.warn(AN_EXCEPTION_OCCURED_WHICH_WILL_CAUSE_A_RESPONSE, FORBIDDEN, ex);
 		return buildResponseEntity(apiError);
 	}
 
@@ -52,11 +55,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<Object> handleExceptionInternal(@NonNull Exception ex, @Nullable Object body,
 			@NonNull HttpHeaders headers, HttpStatusCode status, @NonNull WebRequest request) {
 		if (status.is5xxServerError()) {
-			log.error("An exception occured, which will cause a {} response", status, ex);
+			log.error(AN_EXCEPTION_OCCURED_WHICH_WILL_CAUSE_A_RESPONSE, status, ex);
 		} else if (status.is4xxClientError()) {
-			log.warn("An exception occured, which will cause a {} response", status, ex);
+			log.warn(AN_EXCEPTION_OCCURED_WHICH_WILL_CAUSE_A_RESPONSE, status, ex);
 		} else {
-			log.debug("An exception occured, which will cause a {} response", status, ex);
+			log.debug(AN_EXCEPTION_OCCURED_WHICH_WILL_CAUSE_A_RESPONSE, status, ex);
 		}
 		return super.handleExceptionInternal(ex, body, headers, status, request);
 	}

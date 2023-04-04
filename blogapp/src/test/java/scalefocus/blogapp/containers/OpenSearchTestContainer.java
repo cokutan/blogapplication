@@ -1,8 +1,7 @@
 package scalefocus.blogapp.containers;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
@@ -17,7 +16,7 @@ public class OpenSearchTestContainer extends GenericContainer<OpenSearchTestCont
         withEnv("DISABLE_SECURITY_PLUGIN", "true");
         withCreateContainerCmdModifier(cmd -> cmd.withName("opensearch-tescontainer"));
         setWaitStrategy((new HttpWaitStrategy())
-                .forPort(9200)
+                .forPort(9200).withReadTimeout(Duration.of(120, ChronoUnit.MINUTES))
                 .forStatusCodeMatching(r -> r == 200 || r == 401));
     }
 

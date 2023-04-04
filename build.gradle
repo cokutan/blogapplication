@@ -1,0 +1,28 @@
+plugins {
+    id "org.sonarqube" version "4.0.0.2929"
+    id 'java'
+    id 'org.springframework.boot' version '3.0.5' apply false
+    id 'io.spring.dependency-management' version '1.1.0' apply false
+    id 'io.freefair.lombok' version '6.6.3' apply false
+}
+group = 'scalefocus.blogapp'
+version = '0.3.0'
+sourceCompatibility = '19'
+targetCompatibility = '19'
+
+allprojects {
+    apply plugin: "java"
+
+    repositories {
+        mavenCentral()
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+        environment "TESTCONTAINERS_RYUK_DISABLED", "true"
+    }
+}
