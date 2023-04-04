@@ -1,2 +1,4 @@
-.idea/
+/.idea/
 /.gradle/
+/build/sonar/.sonar_lock
+/build/sonar/report-task.txt

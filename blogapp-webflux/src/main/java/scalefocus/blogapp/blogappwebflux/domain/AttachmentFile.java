@@ -1,7 +1,6 @@
 package scalefocus.blogapp.blogappwebflux.domain;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -32,6 +31,6 @@ public class AttachmentFile {
     }
 
     public boolean isImage() {
-        return Arrays.stream(ImageFormats.values()).anyMatch(t -> t.name() == format);
+        return Arrays.stream(ImageFormats.values()).anyMatch(t -> t.name().equals(format));
     }
 }

@@ -21,13 +21,13 @@ import java.util.List;
 @Slf4j
 public class BlogOpenSearchRepository {
 
-    final private OpenSearchClient openSearchClient;
+    private final OpenSearchClient openSearchClient;
 
-    private final static String BLOG = "blog";
+    private static final String BLOG = "blog";
 
     public void save(Blog blog) {
 
-        if (!indexExists(BLOG)) {
+        if (!indexExists()) {
             createIndexForBlog();
         }
         IndexRequest<Blog> indexRequest = new IndexRequest.Builder<Blog>().refresh(Refresh.True).index(BLOG).id(blog.getId().toString()).document(blog).build();
@@ -74,8 +74,8 @@ public class BlogOpenSearchRepository {
         }
     }
 
-    private boolean indexExists(String indexName) {
-        log.info(String.format("Verifying existence of index \"%s\"", indexName));
+    private boolean indexExists() {
+        log.info(String.format("Verifying existence of index \"%s\"", BLOG));
         ExistsRequest request = new ExistsRequest.Builder().index(BLOG).build();
         try {
             return openSearchClient.indices().exists(request).value();

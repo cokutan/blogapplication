@@ -81,8 +81,7 @@ class TestBlogService {
         };
         Blog updatedBlog = blogService.updateBlog(1L, blog);
 
-        assertThat(updatedBlog).hasFieldOrPropertyWithValue("body", "body_test");
-        assertThat(updatedBlog).hasFieldOrPropertyWithValue("title", "title_test");
+        assertThat(updatedBlog).hasFieldOrPropertyWithValue("body", "body_test").hasFieldOrPropertyWithValue("title", "title_test");
     }
 
     @Test
