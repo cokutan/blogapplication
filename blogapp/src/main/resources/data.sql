@@ -40,4 +40,3 @@ INSERT INTO blog_tag_mm(blog_id, blog_tag_id) VALUES (1, 1);
 insert into blog_tag_seq values ( 20 );
 insert into blog_seq values ( 20 );
 insert into blog_user_seq values ( 20 );
-insert into attachment_file_seq values ( 20 );
