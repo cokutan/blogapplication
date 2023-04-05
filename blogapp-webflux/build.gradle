@@ -9,6 +9,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'io.github.techgnious:IVCompressor:2.0.2'
     implementation 'org.apache.tika:tika-core:2.7.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.1.0'
     runtimeOnly  'io.asyncer:r2dbc-mysql:0.9.1'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'

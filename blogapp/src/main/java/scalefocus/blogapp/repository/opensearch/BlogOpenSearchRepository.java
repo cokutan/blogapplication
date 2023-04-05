@@ -21,76 +21,113 @@ import java.util.List;
 @Slf4j
 public class BlogOpenSearchRepository {
 
-    private final OpenSearchClient openSearchClient;
+  private final OpenSearchClient openSearchClient;
 
-    private static final String BLOG = "blog";
+  private static final String BLOG = "blog";
 
-    public void save(Blog blog) {
+  public void save(Blog blog) {
 
-        if (!indexExists()) {
-            createIndexForBlog();
-        }
-        IndexRequest<Blog> indexRequest = new IndexRequest.Builder<Blog>().refresh(Refresh.True).index(BLOG).id(blog.getId().toString()).document(blog).build();
-        try {
-            openSearchClient.index(indexRequest);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    if (!indexExists()) {
+      createIndexForBlog();
     }
-
-    public void update(Blog blog) {
-
-        UpdateRequest<Blog, Blog> updateRequest = new UpdateRequest.Builder<Blog, Blog>().refresh(Refresh.True).index(BLOG).id(blog.getId().toString()).upsert(blog).doc(blog).build();
-        try {
-            openSearchClient.update(updateRequest, Blog.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    IndexRequest<Blog> indexRequest =
+        new IndexRequest.Builder<Blog>()
+            .refresh(Refresh.True)
+            .index(BLOG)
+            .id(blog.getId().toString())
+            .document(blog)
+            .build();
+    try {
+      openSearchClient.index(indexRequest);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    public List<Blog> search(String toBeSearched) {
-        SearchRequest searchRequest = new SearchRequest.Builder().query(m -> m.bool(k ->
-                k.should(t -> t.match(c -> c.field("title").query(FieldValue.of(toBeSearched))))
-                        .should(z -> z.match(f -> f.field("body").query(FieldValue.of(toBeSearched))))
-                        .should(v -> v.match(f -> f.field("blogtags.tag").query(FieldValue.of(toBeSearched)))))).index(BLOG).build();
-        SearchResponse<Blog> searchResponse;
-        try {
-            searchResponse = openSearchClient.search(searchRequest, Blog.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        HitsMetadata<Blog> hits = searchResponse.hits();
-        return hits.hits().stream().map(Hit::source).toList();
+  public void update(Blog blog) {
 
+    UpdateRequest<Blog, Blog> updateRequest =
+        new UpdateRequest.Builder<Blog, Blog>()
+            .refresh(Refresh.True)
+            .index(BLOG)
+            .id(blog.getId().toString())
+            .upsert(blog)
+            .doc(blog)
+            .build();
+    try {
+      openSearchClient.update(updateRequest, Blog.class);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    private void createIndexForBlog() {
-        try {
-            CreateIndexRequest createIndexRequest = new CreateIndexRequest.Builder().index(BLOG).build();
-            openSearchClient.indices().create(createIndexRequest);
-            log.info(String.format("Creating of index \"%s\"", BLOG));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+  public List<Blog> search(String toBeSearched) {
+    SearchRequest searchRequest =
+        new SearchRequest.Builder()
+            .query(
+                m ->
+                    m.bool(
+                        k ->
+                            k.should(
+                                    t ->
+                                        t.match(
+                                            c ->
+                                                c.field("title")
+                                                    .query(FieldValue.of(toBeSearched))))
+                                .should(
+                                    z ->
+                                        z.match(
+                                            f ->
+                                                f.field("body").query(FieldValue.of(toBeSearched))))
+                                .should(
+                                    v ->
+                                        v.match(
+                                            f ->
+                                                f.field("blogtags.tag")
+                                                    .query(FieldValue.of(toBeSearched))))))
+            .index(BLOG)
+            .build();
+    SearchResponse<Blog> searchResponse;
+    try {
+      searchResponse = openSearchClient.search(searchRequest, Blog.class);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+    HitsMetadata<Blog> hits = searchResponse.hits();
+    return hits.hits().stream().map(Hit::source).toList();
+  }
 
-    private boolean indexExists() {
-        log.info(String.format("Verifying existence of index \"%s\"", BLOG));
-        ExistsRequest request = new ExistsRequest.Builder().index(BLOG).build();
-        try {
-            return openSearchClient.indices().exists(request).value();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+  private void createIndexForBlog() {
+    try {
+      CreateIndexRequest createIndexRequest = new CreateIndexRequest.Builder().index(BLOG).build();
+      openSearchClient.indices().create(createIndexRequest);
+      log.info(String.format("Creating of index \"%s\"", BLOG));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    public void delete(Blog blog) {
-        DeleteRequest deleteRequest = new DeleteRequest.Builder().index(BLOG).id(blog.getId().toString()).refresh(Refresh.True).build();
-        try {
-            openSearchClient.delete(deleteRequest);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+  private boolean indexExists() {
+    log.info(String.format("Verifying existence of index \"%s\"", BLOG));
+    ExistsRequest request = new ExistsRequest.Builder().index(BLOG).build();
+    try {
+      return openSearchClient.indices().exists(request).value();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
+
+  public void delete(Blog blog) {
+    DeleteRequest deleteRequest =
+        new DeleteRequest.Builder()
+            .index(BLOG)
+            .id(blog.getId().toString())
+            .refresh(Refresh.True)
+            .build();
+    try {
+      openSearchClient.delete(deleteRequest);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

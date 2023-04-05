@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication(exclude = {ElasticsearchDataAutoConfiguration.class})
 @EnableAutoConfiguration
 @EnableJpaRepositories(basePackages = "scalefocus.blogapp.repository.sqldb")
-@OpenAPIDefinition(info = @Info(title = "Blog Application API", version = "v0.2.0", description = "Blog Application"))
+@OpenAPIDefinition(info = @Info(title = "Blog Application API", version = "v0.3.0", description = "Blog Application"))
 public class BlogappApplication {
 
     public static void main(String[] args) {
