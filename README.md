@@ -9,7 +9,7 @@
 
 ```docker-compose up -d```
 
-3. Then you can test the application using PostMan and/or using Swagger.
+3. Then you can test the application using PostMan and/or using Swagger UI.
 4. More information about API is avaliable at:
 -  [for blog operations](https://htmlpreview.github.io/?https://github.com/cokutan/blogapplication/blob/develop/blogapp/index.html)
 -  [for file operations](https://htmlpreview.github.io/?https://github.com/cokutan/blogapplication/blob/develop/blogapp-webflux/index.html)
