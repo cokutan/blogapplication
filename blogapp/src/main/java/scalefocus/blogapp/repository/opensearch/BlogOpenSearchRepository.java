@@ -27,9 +27,7 @@ public class BlogOpenSearchRepository {
 
   public void save(Blog blog) {
 
-    if (!indexExists()) {
-      createIndexForBlog();
-    }
+    createIndexIfNotExists();
     IndexRequest<Blog> indexRequest =
         new IndexRequest.Builder<Blog>()
             .refresh(Refresh.True)
@@ -44,7 +42,15 @@ public class BlogOpenSearchRepository {
     }
   }
 
+  private void createIndexIfNotExists() {
+    if (!indexExists()) {
+      createIndexForBlog();
+    }
+  }
+
   public void update(Blog blog) {
+
+    createIndexIfNotExists();
 
     UpdateRequest<Blog, Blog> updateRequest =
         new UpdateRequest.Builder<Blog, Blog>()
@@ -62,6 +68,8 @@ public class BlogOpenSearchRepository {
   }
 
   public List<Blog> search(String toBeSearched) {
+    createIndexIfNotExists();
+
     SearchRequest searchRequest =
         new SearchRequest.Builder()
             .query(
@@ -118,6 +126,7 @@ public class BlogOpenSearchRepository {
   }
 
   public void delete(Blog blog) {
+    createIndexIfNotExists();
     DeleteRequest deleteRequest =
         new DeleteRequest.Builder()
             .index(BLOG)

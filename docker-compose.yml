@@ -1,0 +1,83 @@
+version: '3.8'
+services:
+  blogapp:
+    build: blogapp
+    container_name: 'blogapp'
+    restart: 'always'
+    ports:
+      - '8080:8080'
+    networks:
+      - mysql-network
+      - opensearch-net
+    depends_on:
+      - db
+      - opensearch-node1
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+      - ELASTIC_HOST=opensearch-node1
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+  blogapp-webflux:
+    build: blogapp-webflux
+    container_name: 'blogapp-webflux'
+    restart: 'always'
+    ports:
+      - '8081:8081'
+    networks:
+      - mysql-network
+    depends_on:
+      - db
+      - blogapp
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+  opensearch-node1: # This is also the hostname of the container within the Docker network (i.e. https://opensearch-node1/)
+    image: opensearchproject/opensearch:latest # Specifying the latest available image - modify if you want a specific version
+    container_name: opensearch-node1
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1 # Set memlock to unlimited (no soft or hard limit)
+        hard: -1
+      nofile:
+        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
+        hard: 65536
+    volumes:
+      - opensearch-data1:/usr/share/opensearch/data # Creates volume called opensearch-data1 and mounts it to the container
+    ports:
+      - 9200:9200 # REST API
+      - 9600:9600 # Performance Analyzer
+    networks:
+      - opensearch-net # All of the containers will join the same Docker bridge network
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'blogapp'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'cokutan'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: '123456'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'password'
+      # MYSQL_ROOT_HOST: '%'
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - '3307:3306'
+      # Where our data will be persisted
+    volumes:
+      - my-db:/var/lib/mysql
+    networks:
+      - mysql-network
+    # command: --default-authentication-plugin=mysql_native_password
+  # Names our volume
+volumes:
+  my-db:
+  opensearch-data1:
+networks:
+  mysql-network:
+  opensearch-net:

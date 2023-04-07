@@ -44,7 +44,7 @@ public class UploadController {
             content = @Content),
         @ApiResponse(responseCode = "500", content = @Content)
       })
-  @PostMapping(name = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping( path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public Mono<Void> upload(
       @Parameter(
               content =

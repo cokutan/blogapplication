@@ -1,0 +1,80 @@
+openapi: 3.0.1
+info:
+  title: Blog Application File Upload API
+  description: Blog Application File Upload
+  version: v0.3.0
+servers:
+- url: http://localhost:8081
+  description: Generated server url
+paths:
+  /api/v3/blogs/file/upload:
+    post:
+      tags:
+      - image
+      - video
+      summary: "Upload a bunch of images (jpg, jpeg, png) and/or videos (mp4, mkv,\
+        \ flv, mov, avi, wmv)"
+      operationId: upload
+      parameters:
+      - name: blogId
+        in: query
+        description: related blog id
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: resizeResolution
+        in: query
+        description: in which resolution the file will be converted
+        required: false
+        schema:
+          type: string
+          enum:
+          - R240P
+          - R360P
+          - R480P
+          - R720P
+          - R1080P
+          - R1440P
+          - IMAGE_DEFAULT
+          - VIDEO_DEFAULT
+          - THUMBNAIL
+          - SMALL_THUMBNAIL
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - files
+              type: object
+              properties:
+                files:
+                  type: array
+                  description: image or video files
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "200":
+          description: Succesfully uploaded files
+        "500":
+          description: Internal Server Error
+  /api/v3/blogs/file/delete:
+    delete:
+      tags:
+      - image
+      - video
+      summary: delete the file with given id
+      operationId: delete
+      parameters:
+      - name: attachmentFileId
+        in: query
+        description: id of the file to be deleted
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Succesfully deleted files
+components: {}
