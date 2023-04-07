@@ -4,6 +4,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ import scalefocus.blogapp.service.BlogService;
 @RestController
 @RequestMapping("/api/v3")
 @SecurityScheme(
-    name = "userBearerHttp",
+    name = "bearerAuth",
     type = SecuritySchemeType.HTTP,
     description = "authentication needed to use blog methods",
     scheme = "bearer",
@@ -43,7 +44,7 @@ public class BlogOperationsRestController {
   @GetMapping(value = "/users/{username}/blogs")
   @Operation(
       summary = "Get a list of summary of blogs created by given user",
-      tags = {"blogs"},
+      tags = {"blogs"}, security = {@SecurityRequirement(name = "bearerAuth")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -84,7 +85,7 @@ public class BlogOperationsRestController {
   @GetMapping(value = "/blogs/search")
   @Operation(
       summary = "Get a list of summary of blogs created by given user",
-      tags = {"blogs"},
+      tags = {"blogs"}, security = {@SecurityRequirement(name = "bearerAuth")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -117,7 +118,7 @@ public class BlogOperationsRestController {
   @GetMapping("/blogs/tags/{tag}")
   @Operation(
       summary = "Get a list of blogs attached to a the given tag",
-      tags = {"blogs", "tags"},
+      tags = {"blogs", "tags"}, security = {@SecurityRequirement(name = "bearerAuth")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -147,7 +148,7 @@ public class BlogOperationsRestController {
   @PostMapping("/blogs")
   @Operation(
       summary = "Create blog",
-      tags = {"blogs"},
+      tags = {"blogs"}, security = {@SecurityRequirement(name = "bearerAuth")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -179,7 +180,7 @@ public class BlogOperationsRestController {
   @PutMapping("/blogs/{id}")
   @Operation(
       summary = "Update blog",
-      tags = {"blogs"},
+      tags = {"blogs"}, security = {@SecurityRequirement(name = "bearerAuth")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -213,7 +214,7 @@ public class BlogOperationsRestController {
   @DeleteMapping("/blogs/{id}")
   @Operation(
       summary = "Delete blog with given id",
-      tags = {"blogs"},
+      tags = {"blogs"}, security = {@SecurityRequirement(name = "bearerAuth")},
       responses = {
         @ApiResponse(responseCode = "200", description = "Succesfully deleted", content = @Content),
         @ApiResponse(responseCode = "403", content = @Content),
@@ -234,7 +235,7 @@ public class BlogOperationsRestController {
   @PutMapping("/blogs/{id}/tags/{tag}")
   @Operation(
       summary = "Attach a tag to the blog",
-      tags = {"blogs", "tags"},
+      tags = {"blogs", "tags"}, security = {@SecurityRequirement(name = "bearerAuth")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -260,7 +261,7 @@ public class BlogOperationsRestController {
   @Operation(
       summary = "Detach tag from the blog",
       operationId = "unattachTag",
-      tags = {"blogs", "tags"},
+      tags = {"blogs", "tags"}, security = {@SecurityRequirement(name = "bearerAuth")},
       responses = {
         @ApiResponse(
             responseCode = "200",

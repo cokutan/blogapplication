@@ -32,6 +32,7 @@ public class SecurityConfiguration {
 	            "/configuration/**",
 	            // -- Swagger UI v3 (OpenAPI)
 	            "/v3/api-docs/**",
+			    "/v3/api-docs.yaml",
 	            "/swagger-ui/**",
 	            "/api/v3/auth/**"
 	            // other public endpoints of your API may be appended to this array

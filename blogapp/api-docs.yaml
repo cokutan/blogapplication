@@ -1,0 +1,388 @@
+openapi: 3.0.1
+info:
+  title: Blog Application API
+  description: Blog Application
+  version: v0.3.0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /api/v3/blogs/{id}:
+    put:
+      tags:
+      - blogs
+      summary: Update blog
+      operationId: updateBlog
+      parameters:
+      - name: id
+        in: path
+        description: id of blog to be updated
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: Blog to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Blog'
+        required: true
+      responses:
+        "200":
+          description: Succesfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - blogs
+      summary: Delete blog with given id
+      operationId: deleteBlog
+      parameters:
+      - name: id
+        in: path
+        description: id of blog to be deleted
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Succesfully deleted
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+  /api/v3/blogs/{id}/tags/{tag}:
+    put:
+      tags:
+      - blogs
+      - tags
+      summary: Attach a tag to the blog
+      operationId: attachTag
+      parameters:
+      - name: id
+        in: path
+        description: id of blog to be attached
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: tag
+        in: path
+        description: tag to attach
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Succesfully attached
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - blogs
+      - tags
+      summary: Detach tag from the blog
+      operationId: unattachTag
+      parameters:
+      - name: id
+        in: path
+        description: id of blog to be dettached
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: tag
+        in: path
+        description: tag to be dettached
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Succesfully unattached
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+  /api/v3/blogs:
+    post:
+      tags:
+      - blogs
+      summary: Create blog
+      operationId: createBlog
+      requestBody:
+        description: Blog to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Blog'
+        required: true
+      responses:
+        "200":
+          description: Succesfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        "404":
+          description: User not found
+        "500":
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+  /api/v3/auth/register:
+    post:
+      tags:
+      - authentication
+      summary: Register the user for the first time
+      operationId: register
+      requestBody:
+        description: Registration request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              Register request with username and password.:
+                summary: Minimal request
+                description: Register request with username and password.
+                value:
+                  displayname: Çağla Boynueğri
+                  username: caglaboynuegri
+                  password: "123456"
+        required: true
+      responses:
+        "200":
+          description: Succesfully registered
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthenticationResponse'
+              examples:
+                Token generated with SHA-256 algorithm.:
+                  summary: response
+                  description: Token generated with SHA-256 algorithm.
+                  value: "  \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGl2ZWxpIiwiaWF0IjoxNjc4Njk5NjA2LCJleHAiOjE2Nzg3MDEwNDZ9.SNLHaihQeir0yWNZ1gy4gnQM6Z8kXySnueYsouwVXuA\""
+  /api/v3/auth/authenticate:
+    post:
+      tags:
+      - authentication
+      summary: Authenticate the user with jwt token
+      operationId: authenticate
+      requestBody:
+        description: Authentication request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticationRequest'
+            examples:
+              Register request with username and password.:
+                summary: Minimal request
+                description: Register request with username and password.
+                value:
+                  username: caglaboynuegri
+                  password: "123456"
+        required: true
+      responses:
+        "200":
+          description: Succesfully authenticated
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthenticationResponse'
+              examples:
+                Token generated with SHA-256 algorithm.:
+                  summary: response
+                  description: Token generated with SHA-256 algorithm.
+                  value: "  \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGl2ZWxpIiwiaWF0IjoxNjc4Njk5NjA2LCJleHAiOjE2Nzg3MDEwNDZ9.SNLHaihQeir0yWNZ1gy4gnQM6Z8kXySnueYsouwVXuA\""
+  /api/v3/users/{username}/blogs:
+    get:
+      tags:
+      - blogs
+      summary: Get a list of summary of blogs created by given user
+      operationId: getSummaryListForUser
+      parameters:
+      - name: username
+        in: path
+        description: name of the user to retrieve blogs
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: which page to retrieve
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        description: how many records to retrieve
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: Succesfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        "204":
+          description: Succesfully retrieved with no content
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+  /api/v3/blogs/tags/{tag}:
+    get:
+      tags:
+      - blogs
+      - tags
+      summary: Get a list of blogs attached to a the given tag
+      operationId: getBlogsWithTag
+      parameters:
+      - name: tag
+        in: path
+        description: tag to be used for fetching
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Succesfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        "204":
+          description: Succesfully retrieved with no content
+        "500":
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+  /api/v3/blogs/search:
+    get:
+      tags:
+      - blogs
+      summary: Get a list of summary of blogs created by given user
+      operationId: getSummaryListForUser_1
+      parameters:
+      - name: term
+        in: query
+        description: term to be searched in title description or tags
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Succesfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
+        "204":
+          description: Succesfully retrieved with no content
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    Blog:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        body:
+          type: string
+        createdBy:
+          $ref: '#/components/schemas/BlogUser'
+        blogtags:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlogTag'
+    BlogTag:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        tag:
+          type: string
+    BlogUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        displayname:
+          type: string
+        username:
+          type: string
+        role:
+          type: string
+          enum:
+          - USER
+          - ADMIN
+    AuthenticationResponse:
+      type: object
+      properties:
+        token:
+          type: string
+    RegisterRequest:
+      type: object
+      properties:
+        displayname:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+    AuthenticationRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: authentication needed to use blog methods
+      scheme: bearer
+      bearerFormat: JWT
