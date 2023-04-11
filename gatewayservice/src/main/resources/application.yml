@@ -1,0 +1,25 @@
+server:
+  port: '8080'
+spring:
+  application:
+    name: GATEWAY-SERVICE
+  cloud:
+    gateway:
+      routes:
+      - id: fileOperations
+        uri: lb://FILE-SERVICE
+        predicates:
+        - Path=/api/v3/blogs/file/**
+      - id: blogOperations
+        uri: http://localhost:9009
+        predicates:
+        - Path=/api/v3/**
+#Publish Application(Register with Eureka)
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka
+logging:
+  level:
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
+    org.springframework.cloud.gateway : DEBUG

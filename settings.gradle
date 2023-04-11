@@ -1,3 +1,6 @@
 rootProject.name = 'scalefocus-blogapp'
 include 'blogapp'
 include 'blogapp-webflux'
+include 'discoveryservice'
+include 'gatewayservice'
+
