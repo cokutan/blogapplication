@@ -1,5 +1,3 @@
 /.idea/
 /.gradle/
-/build/sonar/.sonar_lock
-/build/sonar/report-task.txt
-/build/libs/scalefocus-blogapp-0.3.0.jar
+/build/
