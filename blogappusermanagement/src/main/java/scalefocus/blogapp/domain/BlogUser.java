@@ -1,23 +1,26 @@
 package scalefocus.blogapp.domain;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
+import java.util.Collection;
+import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Data
 @Accessors(chain = true)
-public class BlogUser implements BlogAppEntity {
+public class BlogUser  {
 
 	private static final long serialVersionUID = -4818698754462896098L;
 

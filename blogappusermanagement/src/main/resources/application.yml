@@ -1,0 +1,31 @@
+server:
+  port: 9010
+
+spring:
+  application:
+    name: USER-SERVICE
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+         issuer-uri: http://localhost:8888/auth/realms/master
+  jpa:
+    defer-datasource-initialization: 'true'
+    open-in-view: 'false'
+    database-platform: org.hibernate.dialect.MySQLDialect
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    password: '123456'
+    username: cokutan
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3307}/blogapp
+  profiles:
+    active: production
+
+  #Publish Application(Register with Eureka)
+  eureka:
+    client:
+      service-url:
+        default-zone: http://localhost:8761/eureka
+  # instance id for eureka server
+    instance:
+      instance-id: ${spring.application.name}:${random.value}
