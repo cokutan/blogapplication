@@ -28,7 +28,7 @@
   "oauth2DevicePollingInterval" : 5,
   "enabled" : true,
   "sslRequired" : "external",
-  "registrationAllowed" : false,
+  "registrationAllowed" : true,
   "registrationEmailAsUsername" : false,
   "rememberMe" : false,
   "verifyEmail" : false,
@@ -365,7 +365,7 @@
   "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister" : false,
   "webAuthnPolicyPasswordlessAcceptableAaguids" : [ ],
   "users" : [ {
-    "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+    "id" : "561ba516-eadc-405d-9a40-eaf2553bac01",
     "createdTimestamp" : 1681313177406,
     "username" : "aliveli",
     "enabled" : true,
@@ -381,7 +381,7 @@
     "groups" : [ ]
   },
     {
-      "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+      "id" : "561ba516-eadc-405d-9a40-eaf2553bac02",
       "createdTimestamp" : 1681313177406,
       "username" : "Wini",
       "enabled" : true,
@@ -397,7 +397,7 @@
       "groups" : [ ]
     },
     {
-      "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+      "id" : "561ba516-eadc-405d-9a40-eaf2553bac03",
       "createdTimestamp" : 1681313177406,
       "username" : "Sigismundo",
       "enabled" : true,
@@ -413,7 +413,7 @@
       "groups" : [ ]
     }
   ,{
-      "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+      "id" : "561ba516-eadc-405d-9a40-eaf2553bac04",
       "createdTimestamp" : 1681313177406,
       "username" : "Zuan",
       "enabled" : true,
@@ -428,7 +428,7 @@
       "notBefore" : 0,
       "groups" : [ ]
     },{
-      "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+      "id" : "561ba516-eadc-405d-9a40-eaf2553bac05",
       "createdTimestamp" : 1681313177406,
       "username" : "Stappard",
       "enabled" : true,
@@ -443,7 +443,7 @@
       "notBefore" : 0,
       "groups" : [ ]
     },{
-      "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+      "id" : "561ba516-eadc-405d-9a40-eaf2553bac06",
       "createdTimestamp" : 1681313177406,
       "username" : "Straughan",
       "enabled" : true,
@@ -458,7 +458,7 @@
       "notBefore" : 0,
       "groups" : [ ]
     },{
-      "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+      "id" : "561ba516-eadc-405d-9a40-eaf2553bac07",
       "createdTimestamp" : 1681313177406,
       "username" : "Couper",
       "enabled" : true,
@@ -473,7 +473,7 @@
       "notBefore" : 0,
       "groups" : [ ]
     },{
-      "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+      "id" : "561ba516-eadc-405d-9a40-eaf2553bac08",
       "createdTimestamp" : 1681313177406,
       "username" : "Brownscombe",
       "enabled" : true,
@@ -488,7 +488,7 @@
       "notBefore" : 0,
       "groups" : [ ]
     },{
-      "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+      "id" : "561ba516-eadc-405d-9a40-eaf2553bac09",
       "createdTimestamp" : 1681313177406,
       "username" : "Englefield",
       "enabled" : true,
@@ -503,7 +503,7 @@
       "notBefore" : 0,
       "groups" : [ ]
     },{
-      "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+      "id" : "561ba516-eadc-405d-9a40-eaf2553bac10",
       "createdTimestamp" : 1681313177406,
       "username" : "Wooddisse",
       "enabled" : true,
@@ -518,7 +518,7 @@
       "notBefore" : 0,
       "groups" : [ ]
     },{
-      "id" : "561ba516-eadc-405d-9a40-eaf2553bac84",
+      "id" : "561ba516-eadc-405d-9a40-eaf2553bac11",
       "createdTimestamp" : 1681313177406,
       "username" : "Birkinshaw",
       "enabled" : true,
@@ -653,7 +653,7 @@
     "standardFlowEnabled" : true,
     "implicitFlowEnabled" : false,
     "directAccessGrantsEnabled" : true,
-    "serviceAccountsEnabled" : false,
+    "serviceAccountsEnabled" : true,
     "publicClient" : false,
     "frontchannelLogout" : false,
     "protocol" : "openid-connect",

@@ -1,14 +1,14 @@
 server:
   port: 9010
+keycloak:
+  auth-server-url: http://localhost:8888/auth
+  realm: blogapp
+  client-id: blogapp
+  client-secret: FsZL17sZd2cSp7bSnCrDdIcS6yuqefC6
 
 spring:
   application:
     name: USER-SERVICE
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-         issuer-uri: http://localhost:8888/auth/realms/master
   jpa:
     defer-datasource-initialization: 'true'
     open-in-view: 'false'
@@ -29,3 +29,6 @@ spring:
   # instance id for eureka server
     instance:
       instance-id: ${spring.application.name}:${random.value}
+
+  logging.level:
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE

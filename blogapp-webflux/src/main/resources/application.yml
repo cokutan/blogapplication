@@ -17,6 +17,11 @@ spring:
     username: cokutan
   profiles:
     active: production
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/auth/realms/blogapp
 #Publish Application(Register with Eureka)
 eureka:
   client:

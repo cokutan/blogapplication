@@ -1,10 +1,8 @@
 package scalefocus.blogapp.domain;
 
-import java.util.Collection;
-import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,6 +15,7 @@ import lombok.experimental.Accessors;
 @Entity
 @Data
 @Accessors(chain = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BlogUser implements BlogAppEntity {
 
 	private static final long serialVersionUID = -4818698754462896098L;

@@ -5,7 +5,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
@@ -26,7 +25,7 @@ public class SecurityConfig {
     "/v3/api-docs/**",
     "/v3/api-docs.yaml",
     "/swagger-ui/**",
-    "/api/v3/auth/**"
+    "/api/v3/register"
     // other public endpoints of your API may be appended to this array
 
   };

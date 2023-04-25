@@ -30,6 +30,11 @@ spring:
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3307}/blogapp?createDatabaseIfNotExist=true
   profiles:
     active: production
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/auth/realms/blogapp
 
   #Publish Application(Register with Eureka)
   eureka:

@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: GATEWAY-SERVICE
+  codec:
+    log-request-details: true
   cloud:
     gateway:
       default-filters:
@@ -18,10 +20,16 @@ spring:
                 redis-rate-limiter.replenishRate: 500
                 redis-rate-limiter.burstCapacity: 1000
                 redis-rate-limiter.requestedTokens: 1
+            #- RemoveRequestHeader=Cookie
+        - id: userOperations
+          uri: http://localhost:9010
+          predicates:
+            - Path=/api/v3/register,/api/v3/logout
         - id: blogOperations
           uri: http://localhost:9009
           predicates:
             - Path=/api/v3/**
+
   security:
     oauth2:
       client:
@@ -37,8 +45,10 @@ spring:
             client-id: blogapp
             client-secret: FsZL17sZd2cSp7bSnCrDdIcS6yuqefC6
             authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
-
+            redirect-uri: "{baseUrl}/login/oauth2/code/blogapp"
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/auth/realms/blogapp
 #Publish Application(Register with Eureka)
 eureka:
   client:
@@ -50,3 +60,4 @@ logging.level:
   org.springframework.security: DEBUG
   org.springframework.web.reactive.function.client: TRACE
   org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
+  org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
