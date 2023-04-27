@@ -1,0 +1,63 @@
+server:
+  port: '8080'
+spring:
+  application:
+    name: gatewayservice
+  codec:
+    log-request-details: true
+  cloud:
+    gateway:
+      default-filters:
+        - TokenRelay
+      routes:
+        - id: fileOperations
+          uri: lb://blogapp-webflux
+          predicates:
+            - Path=/api/v3/blogs/file/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 500
+                redis-rate-limiter.burstCapacity: 1000
+                redis-rate-limiter.requestedTokens: 1
+            #- RemoveRequestHeader=Cookie
+        - id: userOperations
+          uri: http://localhost:9010
+          predicates:
+            - Path=/api/v3/register,/api/v3/logout
+        - id: blogOperations
+          uri: http://localhost:9009
+          predicates:
+            - Path=/api/v3/**
+
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            token-uri: http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/token
+            authorization-uri: http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/auth
+            userinfo-uri: http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/userinfo
+            user-name-attribute: sub
+        registration:
+          blogapp:
+            provider: keycloak
+            client-id: blogapp
+            client-secret: FsZL17sZd2cSp7bSnCrDdIcS6yuqefC6
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/blogapp"
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/auth/realms/blogapp
+#Publish Application(Register with Eureka)
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka
+
+logging.level:
+  org.springframework.cloud.gateway: TRACE
+  org.springframework.security: DEBUG
+  org.springframework.web.reactive.function.client: TRACE
+  org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
+  org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE

@@ -16,6 +16,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.0.1'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'io.github.techgnious:IVCompressor:2.0.2'
     implementation 'org.apache.tika:tika-core:2.7.0'

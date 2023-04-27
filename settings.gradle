@@ -4,4 +4,5 @@ include 'blogapp-webflux'
 include 'discoveryservice'
 include 'gatewayservice'
 include 'blogappusermanagement'
+include 'configserver'
 

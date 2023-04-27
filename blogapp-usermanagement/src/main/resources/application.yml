@@ -1,5 +1,5 @@
 spring:
   application:
-    name: blogapp-webflux
+    name: blogapp-usermanagement
   config:
     import: "optional:configserver:http://localhost:8088"
