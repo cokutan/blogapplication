@@ -6,9 +6,11 @@ import io.github.techgnious.dto.ResizeResolution;
 import io.github.techgnious.dto.VideoFormats;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
@@ -26,7 +28,18 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @RestController
-@RequestMapping("/api/v3/blogs/file")
+@SecurityScheme(
+        name = "openid",
+        type = SecuritySchemeType.OAUTH2,
+        scheme = "bearer",
+        bearerFormat = "jwt",
+        flows = @OAuthFlows(
+                authorizationCode = @OAuthFlow(
+                        authorizationUrl = "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/auth",
+                        tokenUrl = "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/token",
+                        refreshUrl = "",
+                        scopes = @OAuthScope(name = "openid", description = "OpenID role")
+                )))
 @Slf4j
 @RequiredArgsConstructor
 public class UploadController {
@@ -36,7 +49,7 @@ public class UploadController {
   @Operation(
       summary =
           "Upload a bunch of images (jpg, jpeg, png) and/or videos (mp4, mkv, flv, mov, avi, wmv)",
-      tags = {"image", "video"},
+      tags = {"image", "video"}, security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -112,7 +125,7 @@ public class UploadController {
 
   @Operation(
       summary = "delete the file with given id",
-      tags = {"image", "video"},
+      tags = {"image", "video"}, security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",

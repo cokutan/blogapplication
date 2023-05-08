@@ -1,8 +1,8 @@
 rootProject.name = 'scalefocus-blogapp'
+include 'configserver'
+include 'discoveryservice'
 include 'blogapp'
 include 'blogapp-webflux'
-include 'discoveryservice'
+include 'blogapp-usermanagement'
 include 'gatewayservice'
-include 'blogappusermanagement'
-include 'configserver'
 

@@ -21,8 +21,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import scalefocus.blogapp.auth.AuthenticationRequest;
-import scalefocus.blogapp.auth.AuthenticationResponse;
 import scalefocus.blogapp.containers.OpenSearchTestContainer;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogTag;
@@ -78,16 +76,16 @@ class TestBlogOperationsControllerEmbeddedServer {
     registry.add("${opensearch.host.port}", () -> openSearchTestContainer.getMappedPort(9200));
   }
 
-  @BeforeEach
-  public void login() {
-    AuthenticationResponse response =
-        restTemplate.postForObject(
-            "http://localhost:" + port + "/api/v3/auth/authenticate",
-            AuthenticationRequest.builder().password("Veli").username("aliveli").build(),
-            AuthenticationResponse.class);
-    blogUser = blogUserRepository.findFirstByUsername("aliveli").get();
-    bearerToken = "Bearer " + response.getToken();
-  }
+//  @BeforeEach
+//  public void login() {
+//    AuthenticationResponse response =
+//        restTemplate.postForObject(
+//            "http://localhost:" + port + "/api/v3/auth/authenticate",
+//            AuthenticationRequest.builder().password("Veli").username("aliveli").build(),
+//            AuthenticationResponse.class);
+//    blogUser = blogUserRepository.findFirstByUsername("aliveli").get();
+//    bearerToken = "Bearer " + response.getToken();
+//  }
 
   @Test
   void index() {

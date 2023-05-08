@@ -2,9 +2,9 @@ package scalefocus.blogapp.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.Arrays;
@@ -18,7 +18,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import scalefocus.blogapp.domain.BlogUser;
@@ -26,7 +25,6 @@ import scalefocus.blogapp.domain.RegisterRequest;
 import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
 
 @RestController
-@RequestMapping("/api/v3")
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
@@ -54,16 +52,7 @@ public class UserController {
         @ApiResponse(
             responseCode = "200",
             description = "Succesfully registered",
-            content =
-                @Content(
-                    examples = {
-                      @ExampleObject(
-                          name = "Token generated with SHA-256 algorithm.",
-                          summary = "response",
-                          value =
-                              "  \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGl2ZWxpIiwiaWF0IjoxNjc4Njk5NjA2LCJleHAiOjE2Nzg3MDEwNDZ9.SNLHaihQeir0yWNZ1gy4gnQM6Z8kXySnueYsouwVXuA\"")
-                    },
-                    schema = @Schema(implementation = ResponseEntity.class)))
+            content = @Content(schema = @Schema(implementation = ResponseEntity.class)))
       })
   public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
 
@@ -104,6 +93,16 @@ public class UserController {
   }
 
   @PostMapping("/logout")
+  @Operation(
+      summary = "Logout the logged in user",
+      operationId = "logout",
+      tags = {"logout"},
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Succesfully logged out",
+            content = @Content(schema = @Schema(implementation = ResponseEntity.class)))
+      })
   public ResponseEntity<?> logout(HttpServletRequest request) {
 
     HttpSession session = request.getSession(false);

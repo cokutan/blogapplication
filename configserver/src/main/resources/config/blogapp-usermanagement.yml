@@ -1,5 +1,6 @@
 server:
   port: 9010
+  forward-headers-strategy: framework
 keycloak:
   auth-server-url: http://localhost:8888/auth
   realm: blogapp
@@ -18,8 +19,7 @@ spring:
     password: '123456'
     username: cokutan
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3307}/blogapp
-  profiles:
-    active: production
+
 
   #Publish Application(Register with Eureka)
   eureka:

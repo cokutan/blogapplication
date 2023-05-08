@@ -7,8 +7,8 @@ plugins {
 }
 group = 'scalefocus.blogapp'
 version = '0.3.0'
-sourceCompatibility = '19'
-targetCompatibility = '19'
+sourceCompatibility = '20'
+targetCompatibility = '20'
 
 allprojects {
     apply plugin: "java"

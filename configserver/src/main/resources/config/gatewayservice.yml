@@ -1,5 +1,6 @@
 server:
   port: '8080'
+  forward-headers-strategy: framework
 spring:
   application:
     name: gatewayservice
@@ -7,28 +8,51 @@ spring:
     log-request-details: true
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: 'http://localhost:${server.port}'
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            allowedHeaders: '*'
+            maxAge: 30
       default-filters:
         - TokenRelay
       routes:
+        - id: userOperations
+          uri: http://localhost:9010
+          predicates:
+            - Path=/usermanagement/**
+          filters:
+            - RewritePath=/usermanagement/(?<path>.*), /$\{path}
         - id: fileOperations
           uri: lb://blogapp-webflux
           predicates:
-            - Path=/api/v3/blogs/file/**
+            - Path=/file/**
           filters:
+            - RewritePath=/file/(?<path>.*), /$\{path}
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 500
                 redis-rate-limiter.burstCapacity: 1000
                 redis-rate-limiter.requestedTokens: 1
             #- RemoveRequestHeader=Cookie
-        - id: userOperations
-          uri: http://localhost:9010
-          predicates:
-            - Path=/api/v3/register,/api/v3/logout
+
         - id: blogOperations
           uri: http://localhost:9009
           predicates:
-            - Path=/api/v3/**
+            - Path=/blogapp/**
+          filters:
+            - RewritePath=/blogapp/(?<path>.*), /$\{path}
+        - id: openapi
+          uri: http://localhost:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
 
   security:
     oauth2:
@@ -46,14 +70,22 @@ spring:
             client-secret: FsZL17sZd2cSp7bSnCrDdIcS6yuqefC6
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/blogapp"
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8888/auth/realms/blogapp
+
 #Publish Application(Register with Eureka)
 eureka:
   client:
     service-url:
       default-zone: http://localhost:8761/eureka
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: blogapp
+        url: /v3/api-docs/blogapp
+      - name: blogapp-webflux
+        url: /v3/api-docs/file
+      - name: blogapp-usermanagement
+        url: /v3/api-docs/usermanagement
 
 logging.level:
   org.springframework.cloud.gateway: TRACE
@@ -61,3 +93,4 @@ logging.level:
   org.springframework.web.reactive.function.client: TRACE
   org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
   org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
+  org.springframework.web.cors.DefaultCorsProcessor: TRACE

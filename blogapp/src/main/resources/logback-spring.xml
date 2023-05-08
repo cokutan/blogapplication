@@ -73,7 +73,7 @@
 		<logger name="com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.wire" level="OFF"/>
 	</springProfile>
 
-	<springProfile name="production">
+	<springProfile name="native">
 		<root level="INFO">
 			<appender-ref ref="RollingFile" />
 			<!-- appender-ref ref="Console" / -->

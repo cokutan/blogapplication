@@ -1,6 +1,6 @@
 server:
   port: 9009
-
+  forward-headers-strategy: framework
 opensearch:
   host:
     name: ${ELASTIC_HOST:localhost}
@@ -28,8 +28,7 @@ spring:
     password: '123456'
     username: cokutan
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3307}/blogapp?createDatabaseIfNotExist=true
-  profiles:
-    active: production
+
   security:
     oauth2:
       resourceserver:

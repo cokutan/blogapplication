@@ -4,7 +4,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import scalefocus.blogapp.domain.Blog;
@@ -27,13 +26,21 @@ import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
 import scalefocus.blogapp.service.BlogService;
 
 @RestController
-@RequestMapping("/api/v3")
 @SecurityScheme(
-    name = "bearerAuth",
-    type = SecuritySchemeType.HTTP,
-    description = "authentication needed to use blog methods",
+    name = "openid",
+    type = SecuritySchemeType.OAUTH2,
     scheme = "bearer",
-    bearerFormat = "JWT")
+    bearerFormat = "jwt",
+    flows =
+        @OAuthFlows(
+            authorizationCode =
+                @OAuthFlow(
+                    authorizationUrl =
+                        "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/auth",
+                    tokenUrl =
+                        "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/token",
+                    refreshUrl = "",
+                    scopes = @OAuthScope(name = "openid", description = "OpenID role"))))
 @RequiredArgsConstructor
 @Slf4j
 public class BlogOperationsRestController {
@@ -44,7 +51,7 @@ public class BlogOperationsRestController {
   @GetMapping(value = "/users/{username}/blogs")
   @Operation(
       summary = "Get a list of summary of blogs created by given user",
-      tags = {"blogs"}, security = {@SecurityRequirement(name = "bearerAuth")},
+      tags = {"blogs"}, security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -85,7 +92,7 @@ public class BlogOperationsRestController {
   @GetMapping(value = "/blogs/search")
   @Operation(
       summary = "Get a list of summary of blogs created by given user",
-      tags = {"blogs"}, security = {@SecurityRequirement(name = "bearerAuth")},
+      tags = {"blogs"}, security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -118,7 +125,7 @@ public class BlogOperationsRestController {
   @GetMapping("/blogs/tags/{tag}")
   @Operation(
       summary = "Get a list of blogs attached to a the given tag",
-      tags = {"blogs", "tags"}, security = {@SecurityRequirement(name = "bearerAuth")},
+      tags = {"blogs", "tags"}, security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -148,7 +155,7 @@ public class BlogOperationsRestController {
   @PostMapping("/blogs")
   @Operation(
       summary = "Create blog",
-      tags = {"blogs"}, security = {@SecurityRequirement(name = "bearerAuth")},
+      tags = {"blogs"}, security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -180,7 +187,7 @@ public class BlogOperationsRestController {
   @PutMapping("/blogs/{id}")
   @Operation(
       summary = "Update blog",
-      tags = {"blogs"}, security = {@SecurityRequirement(name = "bearerAuth")},
+      tags = {"blogs"}, security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -214,7 +221,7 @@ public class BlogOperationsRestController {
   @DeleteMapping("/blogs/{id}")
   @Operation(
       summary = "Delete blog with given id",
-      tags = {"blogs"}, security = {@SecurityRequirement(name = "bearerAuth")},
+      tags = {"blogs"}, security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(responseCode = "200", description = "Succesfully deleted", content = @Content),
         @ApiResponse(responseCode = "403", content = @Content),
@@ -235,7 +242,7 @@ public class BlogOperationsRestController {
   @PutMapping("/blogs/{id}/tags/{tag}")
   @Operation(
       summary = "Attach a tag to the blog",
-      tags = {"blogs", "tags"}, security = {@SecurityRequirement(name = "bearerAuth")},
+      tags = {"blogs", "tags"}, security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -261,7 +268,7 @@ public class BlogOperationsRestController {
   @Operation(
       summary = "Detach tag from the blog",
       operationId = "unattachTag",
-      tags = {"blogs", "tags"}, security = {@SecurityRequirement(name = "bearerAuth")},
+      tags = {"blogs", "tags"}, security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",
