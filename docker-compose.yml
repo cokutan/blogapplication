@@ -3,9 +3,9 @@ services:
   blogapp:
     build: blogapp
     container_name: 'blogapp'
-    restart: 'always'
+    restart: "unless-stopped"
     ports:
-      - '8080:8080'
+      - '9009:9009'
     networks:
       - mysql-network
       - opensearch-net
@@ -20,9 +20,26 @@ services:
   blogapp-webflux:
     build: blogapp-webflux
     container_name: 'blogapp-webflux'
-    restart: 'always'
+    restart: "unless-stopped"
     ports:
-      - '8081:8081'
+      - '9560:9560'
+    networks:
+      - mysql-network
+      - keycloak
+    depends_on:
+      - db
+      - keycloak
+      - blogapp
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+  blogapp-usermanagement:
+    build: blogapp-usermanagement
+    container_name: 'blogapp-usermanagement'
+    restart: "unless-stopped"
+    ports:
+      - '9010:9010'
     networks:
       - mysql-network
     depends_on:
@@ -35,6 +52,7 @@ services:
   opensearch-node1: # This is also the hostname of the container within the Docker network (i.e. https://opensearch-node1/)
     image: opensearchproject/opensearch:latest # Specifying the latest available image - modify if you want a specific version
     container_name: opensearch-node1
+    restart: "unless-stopped"
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
@@ -55,7 +73,7 @@ services:
       - opensearch-net # All of the containers will join the same Docker bridge network
   db:
     image: mysql
-    restart: always
+    restart: "unless-stopped"
     environment:
       MYSQL_DATABASE: 'blogapp'
       # So you don't have to use root, but you can if you like
@@ -74,6 +92,23 @@ services:
     networks:
       - mysql-network
     # command: --default-authentication-plugin=mysql_native_password
+  keycloak:
+    image: jboss/keycloak
+    container_name: keycloak
+    volumes:
+      - ./imports/blogapp-keycloakrealm.json:/opt/jboss/keycloak/imports/blogapp-keycloakrealm.json
+    # command: not needed anymore
+    #  - "-b 0.0.0.0 -Dkeycloak.import=/opt/jboss/keycloak/imports/realm-export.json"
+    environment:
+      KEYCLOAK_IMPORT: /opt/jboss/keycloak/imports/blogapp-keycloakrealm.json
+      KEYCLOAK_USER: spring
+      KEYCLOAK_PASSWORD: spring123
+      KEYCLOAK_LOGLEVEL: DEBUG
+    restart: "unless-stopped"
+    networks:
+      - keycloak
+    ports:
+      - 8888:8080
   # Names our volume
 volumes:
   my-db:
@@ -81,3 +116,4 @@ volumes:
 networks:
   mysql-network:
   opensearch-net:
+  keycloak:

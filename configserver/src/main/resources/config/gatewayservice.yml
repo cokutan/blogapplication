@@ -7,53 +7,44 @@ spring:
   codec:
     log-request-details: true
   cloud:
+    client:
+      hostname: cloud-host
     gateway:
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: 'http://localhost:${server.port}'
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-            allowedHeaders: '*'
-            maxAge: 30
       default-filters:
         - TokenRelay
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
       routes:
-        - id: userOperations
-          uri: http://localhost:9010
-          predicates:
-            - Path=/usermanagement/**
-          filters:
-            - RewritePath=/usermanagement/(?<path>.*), /$\{path}
-        - id: fileOperations
-          uri: lb://blogapp-webflux
-          predicates:
-            - Path=/file/**
-          filters:
-            - RewritePath=/file/(?<path>.*), /$\{path}
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 500
-                redis-rate-limiter.burstCapacity: 1000
-                redis-rate-limiter.requestedTokens: 1
-            #- RemoveRequestHeader=Cookie
+      - id: userOperations
+        uri: http://localhost:9010
+        predicates:
+          - Path=/usermanagement/**
+        filters:
+          - RewritePath=/usermanagement/(?<path>.*), /$\{path}
+      - id: fileOperations
+        uri: lb://blogapp-webflux
+        predicates:
+          - Path=/file/**
+        filters:
+          - RewritePath=/file/(?<path>.*), /$\{path}
+          - name: RequestRateLimiter
+            args:
+              redis-rate-limiter.replenishRate: 500
+              redis-rate-limiter.burstCapacity: 1000
+              redis-rate-limiter.requestedTokens: 1
+          #- RemoveRequestHeader=Cookie
 
-        - id: blogOperations
-          uri: http://localhost:9009
-          predicates:
-            - Path=/blogapp/**
-          filters:
-            - RewritePath=/blogapp/(?<path>.*), /$\{path}
-        - id: openapi
-          uri: http://localhost:${server.port}
-          predicates:
-            - Path=/v3/api-docs/**
-          filters:
-            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
-
+      - id: blogOperations
+        uri: http://localhost:9009
+        predicates:
+          - Path=/blogapp/**
+        filters:
+          - RewritePath=/blogapp/(?<path>.*), /$\{path}
+      - id: openapi
+        uri: http://localhost:${server.port}
+        predicates:
+          - Path=/v3/api-docs/**
+        filters:
+          - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
   security:
     oauth2:
       client:
@@ -63,6 +54,7 @@ spring:
             authorization-uri: http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/auth
             userinfo-uri: http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/userinfo
             user-name-attribute: sub
+            enable-cors: true
         registration:
           blogapp:
             provider: keycloak
@@ -70,6 +62,9 @@ spring:
             client-secret: FsZL17sZd2cSp7bSnCrDdIcS6yuqefC6
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/blogapp"
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/auth/realms/blogapp
 
 #Publish Application(Register with Eureka)
 eureka:
@@ -79,6 +74,7 @@ eureka:
 
 springdoc:
   swagger-ui:
+   # use-root-path: true
     urls:
       - name: blogapp
         url: /v3/api-docs/blogapp
