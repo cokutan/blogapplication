@@ -29,8 +29,6 @@ import scalefocus.blogapp.service.BlogService;
 @SecurityScheme(
     name = "openid",
     type = SecuritySchemeType.OAUTH2,
-    scheme = "bearer",
-    bearerFormat = "jwt",
     flows =
         @OAuthFlows(
             authorizationCode =

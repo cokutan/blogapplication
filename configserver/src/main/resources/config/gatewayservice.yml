@@ -10,6 +10,13 @@ spring:
     client:
       hostname: cloud-host
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:{server.port}"
+            allowedHeaders: "*"
+            allowedMethods:
+            - GET
       default-filters:
         - TokenRelay
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
@@ -28,11 +35,10 @@ spring:
           - RewritePath=/file/(?<path>.*), /$\{path}
           - name: RequestRateLimiter
             args:
-              redis-rate-limiter.replenishRate: 500
-              redis-rate-limiter.burstCapacity: 1000
+              redis-rate-limiter.replenishRate: 10
+              redis-rate-limiter.burstCapacity: 20
               redis-rate-limiter.requestedTokens: 1
-          #- RemoveRequestHeader=Cookie
-
+              deny-empty-key: 'false'
       - id: blogOperations
         uri: http://localhost:9009
         predicates:
@@ -47,6 +53,9 @@ spring:
           - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
   security:
     oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/auth/realms/blogapp
       client:
         provider:
           keycloak:
@@ -62,9 +71,7 @@ spring:
             client-secret: FsZL17sZd2cSp7bSnCrDdIcS6yuqefC6
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/blogapp"
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8888/auth/realms/blogapp
+
 
 #Publish Application(Register with Eureka)
 eureka:
@@ -87,6 +94,7 @@ logging.level:
   org.springframework.cloud.gateway: TRACE
   org.springframework.security: DEBUG
   org.springframework.web.reactive.function.client: TRACE
+  org.springframework.web.cors.reactive.DefaultCorsProcessor: DEBUG
   org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
   org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
   org.springframework.web.cors.DefaultCorsProcessor: TRACE

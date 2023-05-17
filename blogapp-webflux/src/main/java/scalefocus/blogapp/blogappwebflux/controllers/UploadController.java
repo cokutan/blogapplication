@@ -31,8 +31,6 @@ import java.io.InputStream;
 @SecurityScheme(
         name = "openid",
         type = SecuritySchemeType.OAUTH2,
-        scheme = "bearer",
-        bearerFormat = "jwt",
         flows = @OAuthFlows(
                 authorizationCode = @OAuthFlow(
                         authorizationUrl = "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/auth",

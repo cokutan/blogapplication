@@ -6,7 +6,11 @@ keycloak:
   realm: blogapp
   client-id: blogapp
   client-secret: FsZL17sZd2cSp7bSnCrDdIcS6yuqefC6
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 spring:
   application:
     name: blogapp-usermanagement
