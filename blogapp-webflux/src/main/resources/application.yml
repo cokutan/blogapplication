@@ -2,4 +2,4 @@ spring:
   application:
     name: blogapp-webflux
   config:
-    import: "optional:configserver:http://localhost:8088"
+    import: "optional:configserver:http://${CONFIG_SERVICE_HOST:localhost}:8088"

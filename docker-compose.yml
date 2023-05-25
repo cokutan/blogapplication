@@ -1,5 +1,24 @@
 version: '3.8'
 services:
+  configservice:
+    build: configserver
+    container_name: 'configservice'
+    restart: "unless-stopped"
+    ports:
+      - '8088:8088'
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+  discoveryservice:
+    build: discoveryservice
+    container_name: 'discoveryservice'
+    restart: "unless-stopped"
+    ports:
+      - '8761:8761'
+    depends_on:
+      - configservice
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      - CONFIG_SERVICE_HOST=configservice
   blogapp:
     build: blogapp
     container_name: 'blogapp'
@@ -12,11 +31,15 @@ services:
     depends_on:
       - db
       - opensearch-node1
+      - discoveryservice
     environment:
-      - SPRING_PROFILES_ACTIVE=production
+      - SPRING_PROFILES_ACTIVE=native
       - ELASTIC_HOST=opensearch-node1
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
+      - KEYCLOAK_HOST=keycloak
+      - DISCOVERY_SERVICE_HOST=discoveryservice
+      - CONFIG_SERVICE_HOST=configservice
   blogapp-webflux:
     build: blogapp-webflux
     container_name: 'blogapp-webflux'
@@ -30,10 +53,14 @@ services:
       - db
       - keycloak
       - blogapp
+      - discoveryservice
     environment:
-      - SPRING_PROFILES_ACTIVE=production
+      - SPRING_PROFILES_ACTIVE=native
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
+      - KEYCLOAK_HOST=keycloak
+      - DISCOVERY_SERVICE_HOST=discoveryservice
+      - CONFIG_SERVICE_HOST=configservice
   blogapp-usermanagement:
     build: blogapp-usermanagement
     container_name: 'blogapp-usermanagement'
@@ -45,10 +72,30 @@ services:
     depends_on:
       - db
       - blogapp
+      - discoveryservice
     environment:
-      - SPRING_PROFILES_ACTIVE=production
+      - SPRING_PROFILES_ACTIVE=native
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
+      - DISCOVERY_SERVICE_HOST=discoveryservice
+      - CONFIG_SERVICE_HOST=configservice
+  gatewayservice:
+    build: gatewayservice
+    container_name: 'gatewayservice'
+    restart: "unless-stopped"
+    networks:
+      - keycloak
+    ports:
+      - '8080:8080'
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      - CONFIG_SERVICE_HOST=configservice
+    depends_on:
+      - blogapp-usermanagement
+      - blogapp-webflux
+      - configservice
+      - discoveryservice
+      - blogapp
   opensearch-node1: # This is also the hostname of the container within the Docker network (i.e. https://opensearch-node1/)
     image: opensearchproject/opensearch:latest # Specifying the latest available image - modify if you want a specific version
     container_name: opensearch-node1
@@ -110,10 +157,37 @@ services:
     ports:
       - 8888:8080
   # Names our volume
+  sonarqube:
+    image: sonarqube:latest
+    ports:
+      - 9000:9000
+    environment:
+    - SONARQUBE_JDBC_URL=jdbc:mysql://sonarqube-db:3308/sonar
+    - SONARQUBE_JDBC_USERNAME=sonar
+    - SONARQUBE_JDBC_PASSWORD=sonar
+    networks:
+      - sonarnet
+
+  sonarqube-db:
+    image: mysql:latest
+    hostname: sonarqube-db
+    environment:
+      MYSQL_DATABASE: 'sonar'
+      MYSQL_USER: 'sonar'
+      MYSQL_PASSWORD: 'sonar'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3308:3306'
+    volumes:
+      - sonarqube-db:/var/lib/mysql
+    networks:
+    - sonarnet
 volumes:
   my-db:
   opensearch-data1:
+  sonarqube-db:
 networks:
   mysql-network:
   opensearch-net:
   keycloak:
+  sonarnet:

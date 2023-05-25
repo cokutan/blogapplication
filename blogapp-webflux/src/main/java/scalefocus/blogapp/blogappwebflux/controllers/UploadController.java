@@ -29,15 +29,18 @@ import java.io.InputStream;
 
 @RestController
 @SecurityScheme(
-        name = "openid",
-        type = SecuritySchemeType.OAUTH2,
-        flows = @OAuthFlows(
-                authorizationCode = @OAuthFlow(
-                        authorizationUrl = "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/auth",
-                        tokenUrl = "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/token",
-                        refreshUrl = "",
-                        scopes = @OAuthScope(name = "openid", description = "OpenID role")
-                )))
+    name = "openid",
+    type = SecuritySchemeType.OAUTH2,
+    flows =
+        @OAuthFlows(
+            authorizationCode =
+                @OAuthFlow(
+                    authorizationUrl =
+                        "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/auth",
+                    tokenUrl =
+                        "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/token",
+                    refreshUrl = "",
+                    scopes = @OAuthScope(name = "openid", description = "OpenID role"))))
 @Slf4j
 @RequiredArgsConstructor
 public class UploadController {
@@ -47,7 +50,8 @@ public class UploadController {
   @Operation(
       summary =
           "Upload a bunch of images (jpg, jpeg, png) and/or videos (mp4, mkv, flv, mov, avi, wmv)",
-      tags = {"image", "video"}, security = {@SecurityRequirement(name = "openid")},
+      tags = {"image", "video"},
+      security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -55,7 +59,7 @@ public class UploadController {
             content = @Content),
         @ApiResponse(responseCode = "500", content = @Content)
       })
-  @PostMapping( path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public Mono<Void> upload(
       @Parameter(
               content =
@@ -123,7 +127,8 @@ public class UploadController {
 
   @Operation(
       summary = "delete the file with given id",
-      tags = {"image", "video"}, security = {@SecurityRequirement(name = "openid")},
+      tags = {"image", "video"},
+      security = {@SecurityRequirement(name = "openid")},
       responses = {
         @ApiResponse(
             responseCode = "200",

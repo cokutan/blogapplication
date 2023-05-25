@@ -46,13 +46,13 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8888/auth/realms/blogapp
+          issuer-uri: http://${KEYCLOAK_HOST:localhost}:8888/auth/realms/blogapp
 
   #Publish Application(Register with Eureka)
   eureka:
     client:
       service-url:
-        default-zone: http://localhost:8761/eureka
+        default-zone: http://${DISCOVERY_SERVICE_HOST:localhost}:8761/eureka
   # instance id for eureka server
     instance:
       instance-id: ${spring.application.name}:${random.value}
