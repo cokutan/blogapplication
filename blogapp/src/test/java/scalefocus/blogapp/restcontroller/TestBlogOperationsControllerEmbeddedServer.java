@@ -76,16 +76,10 @@ class TestBlogOperationsControllerEmbeddedServer {
     registry.add("${opensearch.host.port}", () -> openSearchTestContainer.getMappedPort(9200));
   }
 
-//  @BeforeEach
-//  public void login() {
-//    AuthenticationResponse response =
-//        restTemplate.postForObject(
-//            "http://localhost:" + port + "/api/v3/auth/authenticate",
-//            AuthenticationRequest.builder().password("Veli").username("aliveli").build(),
-//            AuthenticationResponse.class);
-//    blogUser = blogUserRepository.findFirstByUsername("aliveli").get();
-//    bearerToken = "Bearer " + response.getToken();
-//  }
+  @BeforeEach
+  public void beforeEachTest() {
+    blogUser = blogUserRepository.findFirstByUsername("aliveli").get();
+  }
 
   @Test
   void index() {
@@ -100,7 +94,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     List<Blog> body =
         restTemplate
             .exchange(
-                "http://localhost:" + port + "/api/v3/users/aliveli/blogs?page=0&size=10",
+                "http://localhost:" + port + "/users/aliveli/blogs?page=0&size=10",
                 HttpMethod.GET,
                 createEntityForRestTemplate(null),
                 new ParameterizedTypeReference<List<Blog>>() {},
@@ -115,7 +109,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     List<Blog> body =
         restTemplate
             .exchange(
-                "http://localhost:" + port + "/api/v3/users/aliveli/blogs",
+                "http://localhost:" + port + "/users/aliveli/blogs",
                 HttpMethod.GET,
                 createEntityForRestTemplate(null),
                 new ParameterizedTypeReference<List<Blog>>() {},
@@ -132,7 +126,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     ApiError body =
         restTemplate
             .exchange(
-                "http://localhost:" + port + "/api/v3/users/nonexistinguser/blogs?page=0&size=10",
+                "http://localhost:" + port + "/users/nonexistinguser/blogs?page=0&size=10",
                 HttpMethod.GET,
                 createEntityForRestTemplate(null),
                 ApiError.class,
@@ -150,7 +144,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     List<Blog> body =
         restTemplate
             .exchange(
-                "http://localhost:" + port + "/api/v3/blogs/tags/First Tag",
+                "http://localhost:" + port + "/blogs/tags/First Tag",
                 HttpMethod.GET,
                 createEntityForRestTemplate(null),
                 List.class)
@@ -167,10 +161,10 @@ class TestBlogOperationsControllerEmbeddedServer {
     List<Blog> body =
         restTemplate
             .exchange(
-                "http://localhost:" + port + "/api/v3/blogs/search?term=Sausage",
+                "http://localhost:" + port + "/blogs/search?term=Sausage",
                 HttpMethod.GET,
                 createEntityForRestTemplate(null),
-                    new ParameterizedTypeReference<List<Blog>>() {},
+                new ParameterizedTypeReference<List<Blog>>() {},
                 params)
             .getBody();
     assertThat(body).hasSize(4);
@@ -178,10 +172,10 @@ class TestBlogOperationsControllerEmbeddedServer {
     body =
         restTemplate
             .exchange(
-                "http://localhost:" + port + "/api/v3/blogs/search?term=Aubergine",
+                "http://localhost:" + port + "/blogs/search?term=Aubergine",
                 HttpMethod.GET,
                 createEntityForRestTemplate(null),
-                    new ParameterizedTypeReference<List<Blog>>() {},
+                new ParameterizedTypeReference<List<Blog>>() {},
                 params)
             .getBody();
     assertThat(body).hasSize(3);
@@ -189,7 +183,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     HttpStatusCode statusCode =
         restTemplate
             .exchange(
-                "http://localhost:" + port + "/api/v3/blogs/search?term=nonexistent",
+                "http://localhost:" + port + "/blogs/search?term=nonexistent",
                 HttpMethod.GET,
                 createEntityForRestTemplate(null),
                 List.class,
@@ -225,7 +219,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     Blog body =
         restTemplate
             .exchange(
-                "http://localhost:" + port + "/api/v3/blogs",
+                "http://localhost:" + port + "/blogs",
                 HttpMethod.POST,
                 createEntityForRestTemplate(
                     new Blog()
@@ -254,8 +248,7 @@ class TestBlogOperationsControllerEmbeddedServer {
             .query(q -> q.match(m -> m.field("blogtags.tag").query(FieldValue.of(tag))))
             .build();
     Blog actual = makeOpenSearch(searchRequest);
-    Condition<BlogTag> searchedTag =
-        new Condition<>(m -> tag.equals(m.getTag()), "searchedTag");
+    Condition<BlogTag> searchedTag = new Condition<>(m -> tag.equals(m.getTag()), "searchedTag");
     assertThat(actual.getBlogtags()).areAtLeastOne(searchedTag);
   }
 
@@ -274,7 +267,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     Map<String, String> params = new HashMap<>();
     params.put("id", "1");
     restTemplate.exchange(
-        "http://localhost:" + port + "/api/v3/blogs/1",
+        "http://localhost:" + port + "/blogs/1",
         HttpMethod.PUT,
         createEntityForRestTemplate(blogU),
         Blog.class,
@@ -296,7 +289,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     String id = blog.getId().toString();
     params.put("id", id);
     restTemplate.exchange(
-        "http://localhost:" + port + "/api/v3/blogs/" + id,
+        "http://localhost:" + port + "/blogs/" + id,
         HttpMethod.DELETE,
         createEntityForRestTemplate(null),
         Blog.class,
@@ -325,7 +318,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     params.put("id", "1");
     params.put("tag", "My RestController Test Tag");
     restTemplate.exchange(
-        "http://localhost:" + port + "/api/v3/blogs/{id}/tags/{tag}",
+        "http://localhost:" + port + "/blogs/{id}/tags/{tag}",
         HttpMethod.PUT,
         createEntityForRestTemplate(null),
         ResponseEntity.class,
@@ -335,7 +328,7 @@ class TestBlogOperationsControllerEmbeddedServer {
     checkOpenSearchForBlogTags("My RestController Test Tag");
 
     restTemplate.exchange(
-        "http://localhost:" + port + "/api/v3/blogs/{id}/tags/{tag}",
+        "http://localhost:" + port + "/blogs/{id}/tags/{tag}",
         HttpMethod.DELETE,
         createEntityForRestTemplate(null),
         ResponseEntity.class,
@@ -347,7 +340,7 @@ class TestBlogOperationsControllerEmbeddedServer {
   private <T> HttpEntity<T> createEntityForRestTemplate(T body) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set("authorization", bearerToken);
+    headers.setBasicAuth("aliveli", "secret");
     return new HttpEntity<>(body, headers);
   }
 

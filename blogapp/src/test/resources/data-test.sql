@@ -1,14 +1,14 @@
-INSERT INTO blog_user (id,  displayname,password,username, role) VALUES (1,'Ali','$2a$12$4/EQoZg5Ku1cYTyqzEVGy.HfxHwwLOCFv8dBUkidk/vTxNzyGgy0y','aliveli','USER');
-insert into blog_user (id, displayname, password,username, role) values (2, 'Wini', '$2a$12$WxjKuDNRAouYWRrMCQxwpesrSGDwzcfW2he833P1/isnDbQf/shty', 'Wini','USER');
-insert into blog_user (id, displayname, password,username, role) values (3, 'Sigismundo', '$2a$12$b5hwxHqHo2193faT6G2EUOcZnAIMWnwG2H8uhhDEunu4BHfZN05j6','Sigismundo','USER');
-insert into blog_user (id, displayname, password,username, role) values (4, 'Lotty', '$2a$12$SlAu.2Duw59pdjo4AQ0N3.IH28Rhd3lQBPI1rNrCajMfdgSNBEad6', 'Zuan','USER');
-insert into blog_user (id, displayname, password,username, role) values (5, 'Claiborn', '$2a$12$DRodpKox2jtLL68cywshweHfHfdkVq9LiVcDpHz01hk3boKrqLCRm', 'Stappard','USER');
-insert into blog_user (id, displayname, password,username, role) values (6, 'Erma', '$2a$12$nXZfvC0P2g7zkO.arVjjUuuWryin9BE/A.zUMNFbImYyDNw8XEX4O','Straughan','USER');
-insert into blog_user (id, displayname, password,username, role) values (7, 'Siffre', '$2a$12$ae8EzK2VAaSPpovc7uRU1O1G4UXFp2XxW1dL7r/q49hnRgVWBAbyC', 'Couper','USER');
-insert into blog_user (id, displayname, password,username, role) values (8, 'Tomasina', '$2a$12$YkXpYHqGpfMDR.jRS0ak0uiQswVhywXWZNuaSWBNiTUWO/vZewAZ6', 'Brownscombe','USER');
-insert into blog_user (id, displayname, password,username, role) values (9, 'Jacky', '$2a$12$30cD.4ZcEIIJW.PLYKMRqOaM/7TWy1tdTgOjurjklup6FBEGE2bNK','Englefield','USER');
-insert into blog_user (id, displayname, password,username, role) values (10, 'Obidiah', '$2a$12$13wXnQyNzQTNG5Nz9EEuYuYvrZ.V0slemvCLHNY7YSk8RdIGjIw02','Wooddisse','USER');
-insert into blog_user (id, displayname, password,username, role) values (11, 'Felike', '$2a$12$tqZMPyRfr49fSaXjM05E5uiNzsG7agEOUnXi8Iyvh.23owmQlS4vG','Birkinshaw','USER');
+INSERT INTO blog_user (id,  displayname,username) VALUES (1,'Ali','aliveli');
+insert into blog_user (id, displayname, username) values (2, 'Wini', 'Wini');
+insert into blog_user (id, displayname, username) values (3, 'Sigismundo','Sigismundo');
+insert into blog_user (id, displayname, username) values (4, 'Lotty', 'Zuan');
+insert into blog_user (id, displayname, username) values (5, 'Claiborn', 'Stappard');
+insert into blog_user (id, displayname, username) values (6, 'Erma','Straughan');
+insert into blog_user (id, displayname, username) values (7, 'Siffre', 'Couper');
+insert into blog_user (id, displayname, username) values (8, 'Tomasina', 'Brownscombe');
+insert into blog_user (id, displayname, username) values (9, 'Jacky','Englefield');
+insert into blog_user (id, displayname, username) values (10, 'Obidiah','Wooddisse');
+insert into blog_user (id, displayname, username) values (11, 'Felike','Birkinshaw');
 
 
 INSERT INTO blog(id,title,body, created_by) VALUES (1,'Blogpost1','Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut al',1);
