@@ -76,13 +76,15 @@
 	<springProfile name="native">
 		<root level="INFO">
 			<appender-ref ref="RollingFile" />
-			<!-- appender-ref ref="Console" / -->
+			<appender-ref ref="Console" />
 		</root>
 		<logger name="scalefocus.blogapp" additivity="false"
 			level="ERROR">
 			<appender-ref ref="RollingFile" />
 			<appender-ref ref="Console" />
 		</logger>
+		<logger name="org.springframework.web" level="TRACE" />
+		<logger name="org.springframework.security" level="TRACE" />
 	</springProfile>
 
 

@@ -8,6 +8,14 @@ services:
       - '8088:8088'
     environment:
       - SPRING_PROFILES_ACTIVE=native
+      - DISCOVERY_SERVICE_HOST=discoveryservice
+    healthcheck:
+      test: curl --fail http://localhost:8088/blogapp/native  || exit 1
+      interval: 1m
+      timeout: 30s
+      retries: 3
+    networks:
+      - gateway
   discoveryservice:
     build: discoveryservice
     container_name: 'discoveryservice'
@@ -15,10 +23,18 @@ services:
     ports:
       - '8761:8761'
     depends_on:
-      - configservice
+      configservice:
+        condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=native
       - CONFIG_SERVICE_HOST=configservice
+    healthcheck:
+      test: curl --fail http://localhost:8761/eureka/v2/apps || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - gateway
   blogapp:
     build: blogapp
     container_name: 'blogapp'
@@ -28,18 +44,31 @@ services:
     networks:
       - mysql-network
       - opensearch-net
+      - gateway
+      - keycloak
     depends_on:
-      - db
-      - opensearch-node1
-      - discoveryservice
+      db:
+        condition: service_healthy
+      opensearch-node1:
+        condition: service_healthy
+      discoveryservice:
+        condition: service_healthy
+      configservice:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://localhost:9009  || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
     environment:
       - SPRING_PROFILES_ACTIVE=native
       - ELASTIC_HOST=opensearch-node1
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
       - KEYCLOAK_HOST=keycloak
-      - DISCOVERY_SERVICE_HOST=discoveryservice
+      - KEYCLOAK_PORT=8080
       - CONFIG_SERVICE_HOST=configservice
+      - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
   blogapp-webflux:
     build: blogapp-webflux
     container_name: 'blogapp-webflux'
@@ -49,18 +78,22 @@ services:
     networks:
       - mysql-network
       - keycloak
+      - gateway
     depends_on:
-      - db
-      - keycloak
-      - blogapp
-      - discoveryservice
+      db:
+        condition: service_healthy
+      discoveryservice:
+        condition: service_healthy
+      configservice:
+        condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=native
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
       - KEYCLOAK_HOST=keycloak
-      - DISCOVERY_SERVICE_HOST=discoveryservice
+      - KEYCLOAK_PORT=8080
       - CONFIG_SERVICE_HOST=configservice
+      - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
   blogapp-usermanagement:
     build: blogapp-usermanagement
     container_name: 'blogapp-usermanagement'
@@ -69,33 +102,47 @@ services:
       - '9010:9010'
     networks:
       - mysql-network
+      - gateway
+      - keycloak
     depends_on:
-      - db
-      - blogapp
-      - discoveryservice
+      db:
+        condition: service_healthy
+      discoveryservice:
+        condition: service_healthy
+      configservice:
+        condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=native
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
-      - DISCOVERY_SERVICE_HOST=discoveryservice
       - CONFIG_SERVICE_HOST=configservice
+      - KEYCLOAK_HOST=keycloak
+      - KEYCLOAK_PORT=8080
+      - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
   gatewayservice:
     build: gatewayservice
     container_name: 'gatewayservice'
     restart: "unless-stopped"
     networks:
       - keycloak
+      - gateway
     ports:
       - '8080:8080'
     environment:
       - SPRING_PROFILES_ACTIVE=native
       - CONFIG_SERVICE_HOST=configservice
+      - BLOG_OPERATIONS_HOST=blogapp
+      - USER_OPERATIONS_HOST=blogapp-usermanagement
+      - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
     depends_on:
-      - blogapp-usermanagement
-      - blogapp-webflux
-      - configservice
-      - discoveryservice
-      - blogapp
+      discoveryservice:
+        condition: service_healthy
+      blogapp:
+        condition: service_started
+      blogapp-webflux:
+        condition: service_started
+      blogapp-usermanagement:
+        condition: service_started
   opensearch-node1: # This is also the hostname of the container within the Docker network (i.e. https://opensearch-node1/)
     image: opensearchproject/opensearch:latest # Specifying the latest available image - modify if you want a specific version
     container_name: opensearch-node1
@@ -104,6 +151,7 @@ services:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "DISABLE_SECURITY_PLUGIN=true"
     ulimits:
       memlock:
         soft: -1 # Set memlock to unlimited (no soft or hard limit)
@@ -116,6 +164,11 @@ services:
     ports:
       - 9200:9200 # REST API
       - 9600:9600 # Performance Analyzer
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
     networks:
       - opensearch-net # All of the containers will join the same Docker bridge network
   db:
@@ -136,6 +189,11 @@ services:
       # Where our data will be persisted
     volumes:
       - my-db:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin -h 'localhost' -u root -ppassword ping --silent" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
     networks:
       - mysql-network
     # command: --default-authentication-plugin=mysql_native_password
@@ -152,6 +210,11 @@ services:
       KEYCLOAK_PASSWORD: spring123
       KEYCLOAK_LOGLEVEL: DEBUG
     restart: "unless-stopped"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/auth/" ]
+      interval: 1m
+      timeout: 30s
+      retries: 3
     networks:
       - keycloak
     ports:
@@ -162,9 +225,9 @@ services:
     ports:
       - 9000:9000
     environment:
-    - SONARQUBE_JDBC_URL=jdbc:mysql://sonarqube-db:3308/sonar
-    - SONARQUBE_JDBC_USERNAME=sonar
-    - SONARQUBE_JDBC_PASSWORD=sonar
+      - SONARQUBE_JDBC_URL=jdbc:mysql://sonarqube-db:3308/sonar
+      - SONARQUBE_JDBC_USERNAME=sonar
+      - SONARQUBE_JDBC_PASSWORD=sonar
     networks:
       - sonarnet
 
@@ -181,7 +244,7 @@ services:
     volumes:
       - sonarqube-db:/var/lib/mysql
     networks:
-    - sonarnet
+      - sonarnet
 volumes:
   my-db:
   opensearch-data1:
@@ -191,3 +254,4 @@ networks:
   opensearch-net:
   keycloak:
   sonarnet:
+  gateway:

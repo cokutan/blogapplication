@@ -25,7 +25,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://${KEYCLOAK_HOST:localhost}:8888/auth/realms/blogapp
+          issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8888}/auth/realms/blogapp
 #Publish Application(Register with Eureka)
 eureka:
   client:

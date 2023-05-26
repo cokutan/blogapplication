@@ -2,7 +2,7 @@ server:
   port: 9010
   forward-headers-strategy: framework
 keycloak:
-  auth-server-url: http://localhost:8888/auth
+  auth-server-url: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:8888}/auth
   realm: blogapp
   client-id: blogapp
   client-secret: FsZL17sZd2cSp7bSnCrDdIcS6yuqefC6

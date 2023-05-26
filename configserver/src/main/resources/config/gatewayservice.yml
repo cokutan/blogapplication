@@ -22,7 +22,7 @@ spring:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
       routes:
       - id: userOperations
-        uri: http://localhost:9010
+        uri: http://${USER_OPERATIONS_HOST:localhost}:9010
         predicates:
           - Path=/usermanagement/**
         filters:
@@ -40,7 +40,7 @@ spring:
               redis-rate-limiter.requestedTokens: 1
               deny-empty-key: 'false'
       - id: blogOperations
-        uri: http://localhost:9009
+        uri: http://${BLOG_OPERATIONS_HOST:localhost}:9009
         predicates:
           - Path=/blogapp/**
         filters:
@@ -55,13 +55,13 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8888/auth/realms/blogapp
+          issuer-uri: http://${KEYCLOAK_HOST:localhost}:8888/auth/realms/blogapp
       client:
         provider:
           keycloak:
-            token-uri: http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/token
-            authorization-uri: http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/auth
-            userinfo-uri: http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/userinfo
+            token-uri: http://${KEYCLOAK_HOST:localhost}:8888/auth/realms/blogapp/protocol/openid-connect/token
+            authorization-uri: http://${KEYCLOAK_HOST:localhost}:8888/auth/realms/blogapp/protocol/openid-connect/auth
+            userinfo-uri: http://${KEYCLOAK_HOST:localhost}:8888/auth/realms/blogapp/protocol/openid-connect/userinfo
             user-name-attribute: sub
             enable-cors: true
         registration:
