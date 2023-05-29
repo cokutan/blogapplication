@@ -36,9 +36,9 @@ import java.io.InputStream;
             authorizationCode =
                 @OAuthFlow(
                     authorizationUrl =
-                        "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/auth",
+                        "http://keycloak.docker.internal:8080/auth/realms/blogapp/protocol/openid-connect/auth",
                     tokenUrl =
-                        "http://localhost:8888/auth/realms/blogapp/protocol/openid-connect/token",
+                        "http://keycloak.docker.internal:8080/auth/realms/blogapp/protocol/openid-connect/token",
                     refreshUrl = "",
                     scopes = @OAuthScope(name = "openid", description = "OpenID role"))))
 @Slf4j

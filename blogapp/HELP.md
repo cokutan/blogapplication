@@ -7,4 +7,6 @@
 
 ```docker-compose up -d```
 
-3. Then you can test the application using PostMan and/or using Swagger which is hosted at http://localhost:8080/swagger-ui/index.html.
+3. Add `127.0.0.1 keycloak.docker.internal` to `hosts` file
+
+4. Then you can test the application using PostMan and/or using Swagger which is hosted at http://localhost:8082/swagger-ui/index.html.

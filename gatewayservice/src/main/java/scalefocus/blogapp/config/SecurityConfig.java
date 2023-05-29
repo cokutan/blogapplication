@@ -32,7 +32,7 @@ public class SecurityConfig {
     "/file/v3/api-docs",
     "/usermanagement/v3/api-docs",
     // other public endpoints of your API may be appended to this array
-    "/register"
+    "/usermanagement/register"
   };
 
   @Bean

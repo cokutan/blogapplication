@@ -65,8 +65,6 @@ services:
       - ELASTIC_HOST=opensearch-node1
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
-      - KEYCLOAK_HOST=keycloak
-      - KEYCLOAK_PORT=8080
       - CONFIG_SERVICE_HOST=configservice
       - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
   blogapp-webflux:
@@ -90,8 +88,6 @@ services:
       - SPRING_PROFILES_ACTIVE=native
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
-      - KEYCLOAK_HOST=keycloak
-      - KEYCLOAK_PORT=8080
       - CONFIG_SERVICE_HOST=configservice
       - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
   blogapp-usermanagement:
@@ -116,8 +112,6 @@ services:
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
       - CONFIG_SERVICE_HOST=configservice
-      - KEYCLOAK_HOST=keycloak
-      - KEYCLOAK_PORT=8080
       - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
   gatewayservice:
     build: gatewayservice
@@ -127,7 +121,7 @@ services:
       - keycloak
       - gateway
     ports:
-      - '8080:8080'
+      - '8082:8082'
     environment:
       - SPRING_PROFILES_ACTIVE=native
       - CONFIG_SERVICE_HOST=configservice
@@ -216,9 +210,11 @@ services:
       timeout: 30s
       retries: 3
     networks:
-      - keycloak
+      keycloak:
+        aliases:
+          - keycloak.docker.internal
     ports:
-      - 8888:8080
+      - 8080:8080
   # Names our volume
   sonarqube:
     image: sonarqube:latest
