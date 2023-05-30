@@ -43,6 +43,8 @@ public class UserController {
   @Value("${keycloak.client-secret}")
   private String keycloakClientSecret;
 
+  private final RestTemplate restTemplate;
+
   @PostMapping("/register")
   @Operation(
       summary = "Register the user for the first time",
@@ -81,7 +83,6 @@ public class UserController {
 
     HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-    RestTemplate restTemplate = new RestTemplate();
     restTemplate.postForObject(createUserUrl, requestEntity, String.class);
 
     userRepository.save(
@@ -117,7 +118,6 @@ public class UserController {
             + "/protocol/openid-connect/logout?redirect_uri="
             + getLogoutRedirectUri(request);
 
-    RestTemplate restTemplate = new RestTemplate();
     restTemplate.postForEntity(logoutUrl, null, String.class);
 
     return ResponseEntity.ok().build();
@@ -150,7 +150,6 @@ public class UserController {
     HttpEntity<MultiValueMap<String, String>> requestEntity =
         new HttpEntity<>(requestBody, headers);
 
-    RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<Map> responseEntity =
         restTemplate.postForEntity(tokenUrl, requestEntity, Map.class);
 

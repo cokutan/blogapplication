@@ -1,9 +1,10 @@
 plugins {
-    id "org.sonarqube" version "4.0.0.2929"
+    id 'org.sonarqube' version '4.0.0.2929'
+    id 'jacoco'
     id 'java'
     id 'org.springframework.boot' version '3.0.5' apply false
-    id 'io.spring.dependency-management' version '1.1.0' apply false
-    id 'io.freefair.lombok' version '6.6.3' apply false
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'io.freefair.lombok' version '6.6.3'
 }
 group = 'scalefocus.blogapp'
 version = '0.3.0'
@@ -12,6 +13,8 @@ targetCompatibility = '20'
 
 allprojects {
     apply plugin: "java"
+    apply plugin: "jacoco"
+    apply plugin: "io.spring.dependency-management"
 
     repositories {
         mavenCentral()
@@ -19,10 +22,20 @@ allprojects {
 
     test {
         useJUnitPlatform()
+        finalizedBy jacocoTestReport
     }
 
     tasks.named('test') {
         useJUnitPlatform()
         environment "TESTCONTAINERS_RYUK_DISABLED", "true"
+        finalizedBy jacocoTestReport
+    }
+
+    jacocoTestReport {
+        onlyIf = { true }
+        dependsOn test
+        reports {
+            xml.required = true
+        }
     }
 }

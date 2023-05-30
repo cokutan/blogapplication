@@ -10,7 +10,10 @@
 ```docker-compose up -d```
 
 3. Then you can test the application using PostMan and/or using Swagger UI.
+
 4. More information about API is avaliable at:
 -  [for blog operations](https://htmlpreview.github.io/?https://github.com/cokutan/blogapplication/blob/develop/blogapp/index.html)
 -  [for file operations](https://htmlpreview.github.io/?https://github.com/cokutan/blogapplication/blob/develop/blogapp-webflux/index.html)
-4. Blog operations contain API for blog CRUD operations while file operations handle the file upload using `Spring WebFlux` and `R2DBC` connection for the same database. First API is in `blogapp` subproject and the second source is in `blogapp-webflux`.
+5. Blog operations contain API for blog CRUD operations while file operations handle the file upload using `Spring WebFlux` and `R2DBC` connection for the same database. First API is in `blogapp` subproject and the second source is in `blogapp-webflux`.
+
+6. For sonar, you need to generate token a

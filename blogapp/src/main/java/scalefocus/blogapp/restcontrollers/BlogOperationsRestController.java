@@ -44,7 +44,6 @@ public class BlogOperationsRestController {
   private final BlogService blogService;
   private final BlogJPARepository blogJPARepository;
   private final BlogUserRepository blogUserRepository;
-  private final SecurityContext sc;
 
   @GetMapping(value = "/users/{username}/blogs")
   @Operation(
