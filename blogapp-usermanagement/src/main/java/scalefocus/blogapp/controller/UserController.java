@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -43,7 +45,14 @@ public class UserController {
   @Value("${keycloak.client-secret}")
   private String keycloakClientSecret;
 
-  private final RestTemplate restTemplate;
+  private RestTemplate restTemplate;
+
+  @Autowired
+  public UserController(
+      BlogUserRepository blogUserRepository, RestTemplateBuilder restTemplateBuilder) {
+    this.userRepository = blogUserRepository;
+    this.restTemplate = restTemplateBuilder.build();
+  }
 
   @PostMapping("/register")
   @Operation(

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +21,15 @@ class TestUserController {
 
   @Mock private BlogUserRepository userRepository;
   @Mock private RestTemplate restTemplate;
+  @Mock private RestTemplateBuilder restTemplateBuilder;
   private UserController userController;
   private AutoCloseable closeable;
 
   @BeforeEach
   void setUp() {
     closeable = MockitoAnnotations.openMocks(this);
-    userController = new UserController(userRepository, restTemplate);
+    Mockito.when(restTemplateBuilder.build()).thenReturn(restTemplate);
+    userController = new UserController(userRepository, restTemplateBuilder);
     ReflectionTestUtils.setField(userController, "keycloakBaseUrl", "http://example.com");
   }
 
