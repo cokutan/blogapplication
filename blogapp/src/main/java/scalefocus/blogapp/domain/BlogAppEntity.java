@@ -1,5 +1,7 @@
 package scalefocus.blogapp.domain;
 
+import java.math.BigInteger;
+
 public interface BlogAppEntity {
-    Long getId();
+    String getId();
 }

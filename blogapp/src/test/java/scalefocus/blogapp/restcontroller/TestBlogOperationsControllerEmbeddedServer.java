@@ -23,7 +23,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import scalefocus.blogapp.containers.OpenSearchTestContainer;
 import scalefocus.blogapp.domain.Blog;
-import scalefocus.blogapp.domain.BlogTag;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.exceptions.ApiError;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
@@ -214,7 +213,7 @@ class TestBlogOperationsControllerEmbeddedServer {
   @Test
   void createBlog() throws IOException {
     Condition<Blog> nonNullID =
-        new Condition<>(m -> m.getId() != null && m.getId() != 0, "nonNullID");
+        new Condition<>(m -> m.getId() != null && m.getId() != "0", "nonNullID");
 
     Blog body =
         restTemplate
@@ -245,11 +244,11 @@ class TestBlogOperationsControllerEmbeddedServer {
   private void checkOpenSearchForBlogTags(String tag) throws IOException {
     SearchRequest searchRequest =
         new SearchRequest.Builder()
-            .query(q -> q.match(m -> m.field("blogtags.tag").query(FieldValue.of(tag))))
+            .query(q -> q.match(m -> m.field("tags").query(FieldValue.of(tag))))
             .build();
     Blog actual = makeOpenSearch(searchRequest);
-    Condition<BlogTag> searchedTag = new Condition<>(m -> tag.equals(m.getTag()), "searchedTag");
-    assertThat(actual.getBlogtags()).areAtLeastOne(searchedTag);
+    Condition<String> searchedTag = new Condition<>(m -> tag.equals(m), "searchedTag");
+    assertThat(actual.getTags()).areAtLeastOne(searchedTag);
   }
 
   private Blog makeOpenSearch(SearchRequest searchRequest) throws IOException {

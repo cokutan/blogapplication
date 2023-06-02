@@ -12,7 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@Profile("native")
+@Profile({"native","default"})
 public class SecurityConfiguration {
 
   private static final String[] AUTH_WHITELIST = {

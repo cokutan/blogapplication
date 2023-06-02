@@ -165,6 +165,16 @@ services:
       retries: 3
     networks:
       - opensearch-net # All of the containers will join the same Docker bridge network
+  mongodb:
+    image: mongo
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_DATABASE=blogapp
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
   db:
     image: mysql
     restart: "unless-stopped"
@@ -224,6 +234,7 @@ services:
       - sonarnet
 volumes:
   my-db:
+  dbdata:
   opensearch-data1:
 networks:
   mysql-network:

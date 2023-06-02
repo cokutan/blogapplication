@@ -8,16 +8,13 @@ import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import jakarta.transaction.Transactional;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
-import scalefocus.blogapp.repository.sqldb.BlogJPARepository;
-import scalefocus.blogapp.repository.sqldb.BlogTagRepository;
+import scalefocus.blogapp.repository.sqldb.BlogRepository;
 
 @SpringBootTest
 @Testcontainers
@@ -28,20 +25,16 @@ class TestBlogServiceIntegration {
 	private BlogService blogService;
 
 	@Autowired
-	private BlogJPARepository blogJPARepository;
-
-	@Autowired
-	private BlogTagRepository blogTagRepository;
+	private BlogRepository blogRepository;
 
 	private BlogUser blogUser = new BlogUser().setUsername("aliveli");
 
 	@Test
-	@Transactional
 	void createBlog_shouldReturnCreatedBlogObject() throws BlogAppEntityNotFoundException {
 
 		Blog createdBlog = blogService
 				.createBlog(new Blog().setCreatedBy(blogUser).setTitle("title_test").setBody("body_test"));
-		Condition<Blog> idGiven = new Condition<>(t -> t.getId() != null && t.getId() != 0, "idGiven");
+		Condition<Blog> idGiven = new Condition<>(t -> t.getId() != null && t.getId() != "0", "idGiven");
 
 		assertThat(createdBlog).has(idGiven);
 	}
@@ -58,38 +51,33 @@ class TestBlogServiceIntegration {
 	}
 
 	@Test
-	@Transactional
 	void updateBlog_shouldReturnCreatedBlogObject() throws BlogAppEntityNotFoundException {
-		Blog blog = new Blog().setCreatedBy(new BlogUser().setId(1l).setDisplayname("test1").setUsername("username"))
+		Blog blog = new Blog().setCreatedBy(new BlogUser().setId("1").setDisplayname("test1").setUsername("username"))
 				.setTitle("title updated").setBody("description updated");
 
-		assertThat(blogService.updateBlog(1l, blog)).hasFieldOrPropertyWithValue("title", "title updated")
+		assertThat(blogService.updateBlog("1", blog)).hasFieldOrPropertyWithValue("title", "title updated")
 				.hasFieldOrPropertyWithValue("body", "description updated");
 	}
 
 	@Test
-	@Transactional
 	void deleteBlog_shouldReturnNoObject() throws BlogAppEntityNotFoundException {
-		blogService.deleteBlog(1l);
+		blogService.deleteBlog("1");
 
-		assertThat(blogJPARepository.findById(1l)).isEmpty();
+		assertThat(blogRepository.findById("1")).isEmpty();
 	}
 
 	@Test
-	@Transactional
 	void attachTag_shouldAddTagToBlogObject() throws BlogAppEntityNotFoundException {
-		blogService.attachTag(1l, "tag1");
-		Blog blog = blogJPARepository.findById(1l).get();
-		assertThat(blog.getBlogtags()).hasSize(2).filteredOn("tag", "tag1").isNotEmpty();
+		blogService.attachTag("1", "tag1");
+		Blog blog = blogRepository.findById("1").get();
+		assertThat(blog.getTags()).hasSize(2).filteredOn("tag", "tag1").isNotEmpty();
 	}
 
 	@Test
-	@Transactional
 	void attachTag_shouldRemoveTagToBlogObject() throws BlogAppEntityNotFoundException {
-		blogService.unattachTag(1l, "First Tag");
-		Blog blog = blogJPARepository.findById(1l).get();
-		assertThat(blog.getBlogtags()).isEmpty();
+		blogService.unattachTag("1", "First Tag");
+		Blog blog = blogRepository.findById("1").get();
+		assertThat(blog.getTags()).isEmpty();
 
-		assertThat(blogTagRepository.findByTag("First Tag")).isNotNull();
 	}
 }

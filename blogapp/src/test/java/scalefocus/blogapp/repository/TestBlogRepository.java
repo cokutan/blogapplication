@@ -4,33 +4,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
-
-import jakarta.transaction.Transactional;
 import scalefocus.blogapp.domain.Blog;
-import scalefocus.blogapp.repository.sqldb.BlogJPARepository;
+import scalefocus.blogapp.repository.sqldb.BlogRepository;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class TestBlogJPARepository {
+class TestBlogRepository {
 
 	@Autowired
-	private BlogJPARepository repository;
+	private BlogRepository repository;
 
 	@Test
-	@Transactional
 	void test_InitialData() {
-		Optional<Blog> actual = repository.findById(1l);
+		Optional<Blog> actual = repository.findById("1");
 		Blog expectedValue = new Blog();
-		expectedValue.setId(1l);
+		expectedValue.setId("1");
 		assertThat(actual.get().getId()).isEqualTo(1);
 		assertThat(actual.get().getCreatedBy().getId()).isEqualTo(1l);
-		assertThat(actual.get().getBlogtags().get(0).getTag()).isEqualTo("First Tag");
+		assertThat(actual.get().getTags().get(0)).isEqualTo("First Tag");
 	}
 
 	@Test
@@ -46,7 +42,7 @@ class TestBlogJPARepository {
 
 	@Test
 	void test_findByBlogtags_Tag() {
-		List<Blog> actual = repository.findByBlogtags_Tag("First Tag");
+		List<Blog> actual = repository.findByTags("First Tag");
 		assertThat(actual).singleElement();
 		Blog blog = actual.get(0);
 		assertThat(blog.getId()).isEqualTo(1);

@@ -3,32 +3,24 @@ package scalefocus.blogapp.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+import java.math.BigInteger;
+
+@Document("users")
 @Data
 @Accessors(chain = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BlogUser implements BlogAppEntity {
 
-	private static final long serialVersionUID = -4818698754462896098L;
-
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "blog_user_seq")
-	@SequenceGenerator(allocationSize = 1, name = "blog_user_seq")
-	private Long id;
+	private String id;
 
-	@Column(name = "displayname", nullable = false)
 	private String displayname;
 
-	@Column(name = "username", unique = true, nullable = false)
 	private String username;
 
 }
