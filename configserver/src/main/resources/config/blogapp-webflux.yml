@@ -14,13 +14,9 @@ management:
       exposure:
         include: "*"
 spring:
-  application:
-    name: blogapp-webflux
-  r2dbc:
-    password: '123456'
-    ssl: 'false'
-    url: r2dbc:pool:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3307}/blogapp?allowPublicKeyRetrieval=true
-    username: cokutan
+  data:
+    mongodb:
+      uri: mongodb://cokutan:123456@localhost:27017/blogapp
   security:
     oauth2:
       resourceserver:

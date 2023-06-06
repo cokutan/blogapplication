@@ -58,6 +58,7 @@ public class BlogService {
             .orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", id));
     blog.setTitle(blogData.getTitle());
     blog.setBody(blogData.getBody());
+    blogRepository.save(blog);
     fireUpdateEvent(blog);
     return blog;
   }
@@ -74,6 +75,7 @@ public class BlogService {
             .orElseThrow(
                 () -> new BlogAppEntityNotFoundException(Blog.class, "id", blogId));
     blog.getTags().remove(tag);
+    blogRepository.save(blog);
     fireUpdateEvent(blog);
   }
 
@@ -85,6 +87,7 @@ public class BlogService {
                 () -> new BlogAppEntityNotFoundException(Blog.class, "id", blogId));
 
     blog.getTags().add(tag);
+    blogRepository.save(blog);
     fireUpdateEvent(blog);
   }
 

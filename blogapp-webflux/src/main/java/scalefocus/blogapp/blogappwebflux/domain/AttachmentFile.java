@@ -1,28 +1,21 @@
 package scalefocus.blogapp.blogappwebflux.domain;
 
+import java.util.Arrays;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
-
-import java.util.Arrays;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Table
+@Document("attachments")
 public class AttachmentFile {
     @Id
-    @Column("id")
-    private Long id;
-    @Column
+    private String id;
     private byte[] file;
-    @Column
-    private Long blogId;
-    @Column
+    private String blogId;
     private String filename;
-    @Column
     private String format;
 
-    public AttachmentFile(byte[] ba, Long blogId, String filename, String mimeType) {
+    public AttachmentFile(byte[] ba, String blogId, String filename, String mimeType) {
         this.file = ba;
         this.blogId = blogId;
         this.filename = filename;

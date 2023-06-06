@@ -15,14 +15,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import scalefocus.blogapp.blogappwebflux.domain.AttachmentFile;
 import scalefocus.blogapp.blogappwebflux.exceptions.CannotDoTheCompressionException;
-import scalefocus.blogapp.blogappwebflux.repositories.AttachementFileRepository;
+import scalefocus.blogapp.blogappwebflux.repositories.AttachmentFileRepository;
+import scalefocus.blogapp.blogappwebflux.repositories.BlogRepository;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +49,8 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 public class UploadController {
 
-  private final AttachementFileRepository databaseFileService;
+  private final AttachmentFileRepository attachmentFileRepository;
+  private final BlogRepository blogRepository;
 
   @Operation(
       summary =
@@ -73,55 +78,65 @@ public class UploadController {
               description = "image or video files")
           @RequestPart("files")
           Flux<FilePart> filePartFlux,
-      @Parameter(description = "related blog id") @RequestParam Long blogId,
+      @Parameter(description = "related blog id") @RequestParam String blogId,
       @Parameter(required = false, description = "in which resolution the file will be converted")
           @RequestParam(required = false)
           ResizeResolution resizeResolution) {
-    return filePartFlux
-        .flatMap(
-            fp ->
-                DataBufferUtils.join(fp.content())
-                    .map(
-                        dataBuffer -> {
-                          byte[] bytes;
-                          try {
-                            InputStream inputStream = dataBuffer.asInputStream();
-                            bytes = inputStream.readAllBytes();
-                            inputStream.close();
-                          } catch (IOException e) {
-                            throw new RuntimeException(e);
+    return blogRepository
+        .findById(blogId)
+        .switchIfEmpty(
+            Mono.error(
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Blog not found with ID: " + blogId)))
+        .flatMapMany(
+            blog ->
+                filePartFlux
+                    .flatMap(
+                        fp ->
+                            DataBufferUtils.join(fp.content())
+                                .map(
+                                    dataBuffer -> {
+                                      byte[] bytes;
+                                      try {
+                                        InputStream inputStream = dataBuffer.asInputStream();
+                                        bytes = inputStream.readAllBytes();
+                                        inputStream.close();
+                                      } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                      }
+                                      DataBufferUtils.release(dataBuffer);
+                                      Tika tika = new Tika();
+                                      String mimeType = tika.detect(bytes);
+                                      String filename = fp.filename();
+                                      return new AttachmentFile(bytes, blogId, filename, mimeType);
+                                    }))
+                    .flatMap(
+                        m -> {
+                          if (resizeResolution != null) {
+                            try {
+                              if (m.isImage()) {
+                                m.setFile(
+                                    new IVCompressor()
+                                        .resizeImage(
+                                            m.getFile(),
+                                            ImageFormats.valueOf(m.getFormat()),
+                                            resizeResolution));
+                              } else {
+                                m.setFile(
+                                    new IVCompressor()
+                                        .reduceVideoSize(
+                                            m.getFile(),
+                                            VideoFormats.valueOf(m.getFormat()),
+                                            resizeResolution));
+                              }
+                            } catch (Exception e) {
+                              throw new CannotDoTheCompressionException(
+                                  m.getFilename(), resizeResolution);
+                            }
                           }
-                          DataBufferUtils.release(dataBuffer);
-                          Tika tika = new Tika();
-                          String mimeType = tika.detect(bytes);
-                          String filename = fp.filename();
-                          return new AttachmentFile(bytes, blogId, filename, mimeType);
-                        }))
-        .doOnNext(
-            m -> {
-              if (resizeResolution != null) {
-                try {
-                  if (m.isImage())
-                    m.setFile(
-                        new IVCompressor()
-                            .resizeImage(
-                                m.getFile(),
-                                ImageFormats.valueOf(m.getFormat()),
-                                resizeResolution));
-                  else
-                    m.setFile(
-                        new IVCompressor()
-                            .reduceVideoSize(
-                                m.getFile(),
-                                VideoFormats.valueOf(m.getFormat()),
-                                resizeResolution));
-                } catch (Exception e) {
-                  throw new CannotDoTheCompressionException(m.getFilename(), resizeResolution);
-                }
-              }
-            })
-        .flatMap(databaseFileService::save)
-        .log()
+                          return attachmentFileRepository.save(m);
+                        })
+                    .log())
         .then();
   }
 
@@ -138,7 +153,7 @@ public class UploadController {
   @DeleteMapping("/delete")
   public Mono<Void> delete(
       @Parameter(description = "id of the file to be deleted") @RequestParam
-          Long attachmentFileId) {
-    return databaseFileService.deleteAttachmentFileById(attachmentFileId);
+          String attachmentFileId) {
+    return attachmentFileRepository.deleteAttachmentFileById(attachmentFileId);
   }
 }

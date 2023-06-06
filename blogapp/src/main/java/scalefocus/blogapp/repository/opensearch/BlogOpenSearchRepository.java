@@ -5,16 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.FieldValue;
 import org.opensearch.client.opensearch._types.Refresh;
+import org.opensearch.client.opensearch._types.query_dsl.Query;
 import org.opensearch.client.opensearch.core.*;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.opensearch.client.opensearch.core.search.HitsMetadata;
 import org.opensearch.client.opensearch.indices.CreateIndexRequest;
 import org.opensearch.client.opensearch.indices.ExistsRequest;
+import org.opensearch.client.util.ObjectBuilder;
+import org.opensearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 import scalefocus.blogapp.domain.Blog;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
@@ -76,23 +80,9 @@ public class BlogOpenSearchRepository {
                 m ->
                     m.bool(
                         k ->
-                            k.should(
-                                    t ->
-                                        t.match(
-                                            c ->
-                                                c.field("title")
-                                                    .query(FieldValue.of(toBeSearched))))
-                                .should(
-                                    z ->
-                                        z.match(
-                                            f ->
-                                                f.field("body").query(FieldValue.of(toBeSearched))))
-                                .should(
-                                    v ->
-                                        v.match(
-                                            f ->
-                                                f.field("blogtags.tag")
-                                                    .query(FieldValue.of(toBeSearched))))))
+                            k.should(fieldMatch("title", toBeSearched))
+                                .should(fieldMatch("body", toBeSearched))
+                                .should(fieldMatch("tags", toBeSearched))))
             .index(BLOG)
             .build();
     SearchResponse<Blog> searchResponse;
@@ -103,6 +93,11 @@ public class BlogOpenSearchRepository {
     }
     HitsMetadata<Blog> hits = searchResponse.hits();
     return hits.hits().stream().map(Hit::source).toList();
+  }
+
+  private static Function<Query.Builder, ObjectBuilder<Query>> fieldMatch(
+      String title, String toBeSearched) {
+    return t -> t.match(c -> c.field(title).query(FieldValue.of(toBeSearched)));
   }
 
   private void createIndexForBlog() {

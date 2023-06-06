@@ -14,15 +14,9 @@ management:
 spring:
   application:
     name: blogapp-usermanagement
-  jpa:
-    defer-datasource-initialization: 'true'
-    open-in-view: 'false'
-    database-platform: org.hibernate.dialect.MySQLDialect
-  datasource:
-    driverClassName: com.mysql.cj.jdbc.Driver
-    password: '123456'
-    username: cokutan
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3307}/blogapp
+  data:
+    mongodb:
+      uri: mongodb://cokutan:123456@localhost:27017/blogapp
 
 
   #Publish Application(Register with Eureka)

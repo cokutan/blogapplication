@@ -1,5 +1,8 @@
 spring:
   application:
     name: blogapp-webflux
+  data:
+    mongodb:
+      uri: mongodb://cokutan:123456@localhost:27017/blogapp
   config:
     import: "optional:configserver:http://${CONFIG_SERVICE_HOST:localhost}:8088"

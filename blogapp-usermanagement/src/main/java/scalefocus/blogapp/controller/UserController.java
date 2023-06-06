@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.Arrays;
@@ -21,6 +20,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.domain.RegisterRequest;
@@ -92,8 +92,14 @@ public class UserController {
 
     HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-    restTemplate.postForObject(createUserUrl, requestEntity, String.class);
-
+    try {
+      restTemplate.postForObject(createUserUrl, requestEntity, String.class);
+    } catch (HttpClientErrorException.Conflict ex) {
+      return ResponseEntity.of(
+              ProblemDetail.forStatusAndDetail(
+                  HttpStatus.CONFLICT, "Username already defined in Keycloak"))
+          .build();
+    }
     userRepository.save(
         new BlogUser()
             .setDisplayname(registerRequest.getDisplayname())

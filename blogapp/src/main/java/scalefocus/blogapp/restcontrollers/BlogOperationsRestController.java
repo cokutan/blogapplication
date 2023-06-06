@@ -212,14 +212,16 @@ public class BlogOperationsRestController {
           @RequestBody
           Blog blog,
       Principal principal) {
-    Blog blogOp =
-        blogRepository
-            .findById(id)
-            .orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", id.toString()));
-    checkUserAuthorized(principal, Optional.of(blogOp), "Update blog", id.toString());
+    Blog blogDB = getBlog(id);
+    checkUserAuthorized(principal, blogDB, "Update blog", id);
     blog = blogService.updateBlog(id, blog);
+    return new ResponseEntity<>(blog, HttpStatus.OK);
+  }
 
-    return new ResponseEntity<>(blogOp, HttpStatus.OK);
+  private Blog getBlog(String id) {
+    return blogRepository
+        .findById(id)
+        .orElseThrow(() -> new BlogAppEntityNotFoundException(Blog.class, "id", id));
   }
 
   @DeleteMapping("/blogs/{id}")
@@ -236,11 +238,9 @@ public class BlogOperationsRestController {
   public ResponseEntity<HttpStatus> deleteBlog(
       @Parameter(description = "id of blog to be deleted") @PathVariable("id") String id,
       Principal principal) {
-    Optional<Blog> blogOp = blogRepository.findById(id);
-    if (blogOp.isPresent()) {
-      checkUserAuthorized(principal, blogOp, "Delete Blog", id.toString());
-      blogService.deleteBlog(id);
-    }
+    Blog blog = getBlog(id);
+    checkUserAuthorized(principal, blog, "Delete Blog", id);
+    blogService.deleteBlog(id);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
@@ -262,11 +262,9 @@ public class BlogOperationsRestController {
       @Parameter(description = "id of blog to be attached") @PathVariable("id") String id,
       @Parameter(description = "tag to attach") @PathVariable("tag") String tag,
       Principal principal) {
-    Optional<Blog> blogOp = blogRepository.findById(id);
-    if (blogOp.isPresent()) {
-      checkUserAuthorized(principal, blogOp, "Attach Tag", id.toString());
-      blogService.attachTag(id, tag);
-    }
+    Blog blog = getBlog(id);
+    checkUserAuthorized(principal, blog, "Attach Tag", id);
+    blogService.attachTag(id, tag);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
@@ -289,24 +287,16 @@ public class BlogOperationsRestController {
       @Parameter(description = "id of blog to be dettached") @PathVariable("id") String id,
       @Parameter(description = "tag to be dettached") @PathVariable("tag") String tag,
       Principal principal) {
-    Optional<Blog> blogOp = blogRepository.findById(id);
-    if (blogOp.isPresent()) {
-      checkUserAuthorized(principal, blogOp, "Dettach tag", id.toString());
-      blogService.unattachTag(id, tag);
-    }
+    Blog blog = getBlog(id);
+    checkUserAuthorized(principal, blog, "Dettach tag", id);
+    blogService.unattachTag(id, tag);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   private void checkUserAuthorized(
-      Principal principal, Optional<Blog> blogOp, String operation, String entityId) {
+      Principal principal, Blog blog, String operation, String entityId) {
     String username = principal.getName();
-    boolean isUserAuthorized =
-        blogOp
-            .orElseThrow(
-                () -> new BlogAppEntityNotFoundException(BlogUser.class, "username", username))
-            .getCreatedBy()
-            .getUsername()
-            .equals(username);
+    boolean isUserAuthorized = blog.getCreatedBy().getUsername().equals(username);
     if (!isUserAuthorized) throw new UserNotAuthorizedForOperation(username, operation, entityId);
   }
 }
