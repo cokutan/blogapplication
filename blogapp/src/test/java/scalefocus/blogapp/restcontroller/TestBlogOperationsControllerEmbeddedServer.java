@@ -18,9 +18,11 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import scalefocus.blogapp.containers.MongoDBTestContainer;
 import scalefocus.blogapp.containers.OpenSearchTestContainer;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogUser;
@@ -43,7 +45,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("testcontainers")
 @Import(BlogOperationsRestController.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class TestBlogOperationsControllerEmbeddedServer {
+  public static final String ID_1 = "000000000000000000000001";
+  public static final String ID_2 = "000000000000000000000002";
   @Autowired private BlogOperationsRestController blogOperationsRestController;
 
   // inject the runtime port, it requires the webEnvironment
@@ -69,9 +74,13 @@ class TestBlogOperationsControllerEmbeddedServer {
   static {
     openSearchTestContainer.start();
   }
+  static {
+    MongoDBTestContainer.startInstance();
+  }
 
   @DynamicPropertySource
   static void setDynamicProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.data.mongodb.uri", MongoDBTestContainer.getInstance()::getReplicaSetUrl);
     registry.add("${opensearch.host.port}", () -> openSearchTestContainer.getMappedPort(9200));
   }
 
@@ -264,9 +273,9 @@ class TestBlogOperationsControllerEmbeddedServer {
   void updateBlog() throws BlogAppEntityNotFoundException, IOException {
     Blog blogU = new Blog().setCreatedBy(blogUser).setTitle("newTitle").setBody("newBody");
     Map<String, String> params = new HashMap<>();
-    params.put("id", "1");
+    params.put("id", ID_1);
     restTemplate.exchange(
-        "http://localhost:" + port + "/blogs/1",
+        "http://localhost:" + port + "/blogs/"+ID_1,
         HttpMethod.PUT,
         createEntityForRestTemplate(blogU),
         Blog.class,
@@ -283,9 +292,9 @@ class TestBlogOperationsControllerEmbeddedServer {
   void deleteBlog() throws BlogAppEntityNotFoundException, IOException {
     Blog blog =
         blogService.createBlog(
-            new Blog().setBody("delete").setTitle("delete").setCreatedBy(blogUser));
+            new Blog().setBody("delete").setTitle("delete").setCreatedBy(blogUser)).setId(ID_2);
     Map<String, String> params = new HashMap<>();
-    String id = blog.getId().toString();
+    String id = blog.getId();
     params.put("id", id);
     restTemplate.exchange(
         "http://localhost:" + port + "/blogs/" + id,
@@ -294,7 +303,7 @@ class TestBlogOperationsControllerEmbeddedServer {
         Blog.class,
         params);
     Condition<Blog> deletedBlog =
-        new Condition<>(m -> Long.valueOf(id).equals(m.getId()), "deletedBlog");
+        new Condition<>(m -> id.equals(m.getId()), "deletedBlog");
     assertThat(blogService.getBlogSummaryListForUser("aliveli", 0, 10)).areNot(deletedBlog);
 
     checkOpenSearchForDeletion("id", id);
@@ -314,7 +323,7 @@ class TestBlogOperationsControllerEmbeddedServer {
   @Test
   void attachAndDettachTag() throws BlogAppEntityNotFoundException, IOException {
     Map<String, String> params = new HashMap<>();
-    params.put("id", "1");
+    params.put("id", ID_1);
     params.put("tag", "My RestController Test Tag");
     restTemplate.exchange(
         "http://localhost:" + port + "/blogs/{id}/tags/{tag}",

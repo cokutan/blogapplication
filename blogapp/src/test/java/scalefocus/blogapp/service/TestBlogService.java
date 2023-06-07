@@ -31,8 +31,7 @@ class TestBlogService {
 
   @Mock BlogUserRepository blogUserRepository;
 
-  @Mock
-  BlogRepository blogRepository;
+  @Mock BlogRepository blogRepository;
 
   @Mock ApplicationEventPublisher applicationEventPublisher;
 
@@ -63,10 +62,9 @@ class TestBlogService {
     when(blogUserRepository.findFirstByUsername("aliveli")).thenReturn(Optional.empty());
 
     assertThatThrownBy(
-            () -> {
-              blogService.createBlog(
-                  new Blog().setCreatedBy(blogUser).setTitle("title_test").setBody("body_test"));
-            })
+            () ->
+                blogService.createBlog(
+                    new Blog().setCreatedBy(blogUser).setTitle("title_test").setBody("body_test")))
         .isInstanceOf(BlogAppEntityNotFoundException.class);
   }
 
@@ -86,10 +84,7 @@ class TestBlogService {
   void createBlog_shouldThrowBlogNotFoundException() throws BlogAppEntityNotFoundException {
     Blog blog = new Blog().setCreatedBy(new BlogUser()).setTitle("title_test").setBody("body_test");
     when(blogRepository.findById("200")).thenReturn(Optional.empty());
-    assertThatThrownBy(
-            () -> {
-              blogService.updateBlog("200", blog);
-            })
+    assertThatThrownBy(() -> blogService.updateBlog("200", blog))
         .isInstanceOf(BlogAppEntityNotFoundException.class);
   }
 
@@ -141,10 +136,7 @@ class TestBlogService {
       throws BlogAppEntityNotFoundException {
     when(blogRepository.findById("1")).thenReturn(Optional.empty());
 
-    assertThatThrownBy(
-            () -> {
-              blogService.attachTag("1", "tag");
-            })
+    assertThatThrownBy(() -> blogService.attachTag("1", "tag"))
         .isInstanceOf(BlogAppEntityNotFoundException.class);
   }
 }
