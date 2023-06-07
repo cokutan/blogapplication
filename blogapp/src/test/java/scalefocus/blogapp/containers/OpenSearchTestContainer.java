@@ -16,7 +16,7 @@ public class OpenSearchTestContainer extends GenericContainer<OpenSearchTestCont
         withEnv("DISABLE_SECURITY_PLUGIN", "true");
         withCreateContainerCmdModifier(cmd -> cmd.withName("opensearch-tescontainer"));
         setWaitStrategy((new HttpWaitStrategy())
-                .forPort(9200).withReadTimeout(Duration.of(120, ChronoUnit.MINUTES))
+                .forPort(9200).withReadTimeout(Duration.of(1, ChronoUnit.MINUTES))
                 .forStatusCodeMatching(r -> r == 200 || r == 401));
     }
 

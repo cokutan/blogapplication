@@ -13,13 +13,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Blog implements BlogAppEntity {
 
   @Id private String id;
-
   private String title;
-
   private String body;
-
   private BlogUser createdBy;
-
-  //  @ToString.Exclude
   private List<String> tags = new ArrayList<>();
 }

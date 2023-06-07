@@ -44,7 +44,7 @@
                 level="DEBUG">
         </logger>
         <logger name="org.opensearch.client" level="TRACE"/>
-        <logger name="springframework.data.mongodb" level="DEBUG"/>
+        <logger name="org.springframework.data.mongodb" level="DEBUG"/>
         <logger name="org.springframework.transaction.interceptor" level="TRACE"/>
         <logger name="org.springframework.transaction.support" level="DEBUG"/>
     </springProfile>
@@ -62,7 +62,7 @@
         <logger name="org.springframework.web" level="TRACE"/>
         <logger name="org.springframework.transaction.interceptor" level="TRACE"/>
         <logger name="org.springframework.transaction.support" level="DEBUG"/>
-        <logger name="springframework.data.mongodb" level="DEBUG"/>
+        <logger name="org.springframework.data.mongodb" level="DEBUG"/>
         <!-- The following logger can be used for containers logs since 1.18.0 -->
         <logger name="tc" level="INFO"/>
         <logger name="com.github.dockerjava" level="WARN"/>
@@ -79,7 +79,7 @@
         </logger>
         <logger name="org.springframework.web" level="TRACE"/>
         <logger name="org.springframework.security" level="TRACE"/>
-        <logger name="springframework.data.mongodb" level="DEBUG"/>
+        <logger name="org.springframework.data.mongodb" level="DEBUG"/>
     </springProfile>
 
 
