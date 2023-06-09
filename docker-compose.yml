@@ -42,12 +42,12 @@ services:
     ports:
       - '9009:9009'
     networks:
-      - mysql-network
+      - mongodb-network
       - opensearch-net
       - gateway
       - keycloak
     depends_on:
-      db:
+      mongodb:
         condition: service_healthy
       opensearch-node1:
         condition: service_healthy
@@ -63,8 +63,6 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=native
       - ELASTIC_HOST=opensearch-node1
-      - MYSQL_HOST=db
-      - MYSQL_PORT=3306
       - CONFIG_SERVICE_HOST=configservice
       - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
   blogapp-webflux:
@@ -74,11 +72,11 @@ services:
     ports:
       - '9560:9560'
     networks:
-      - mysql-network
+      - mongodb-network
       - keycloak
       - gateway
     depends_on:
-      db:
+      mongodb:
         condition: service_healthy
       discoveryservice:
         condition: service_healthy
@@ -86,8 +84,6 @@ services:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=native
-      - MYSQL_HOST=db
-      - MYSQL_PORT=3306
       - CONFIG_SERVICE_HOST=configservice
       - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
   blogapp-usermanagement:
@@ -97,11 +93,11 @@ services:
     ports:
       - '9010:9010'
     networks:
-      - mysql-network
+      - mongodb-network
       - gateway
       - keycloak
     depends_on:
-      db:
+      mongodb:
         condition: service_healthy
       discoveryservice:
         condition: service_healthy
@@ -109,8 +105,6 @@ services:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=native
-      - MYSQL_HOST=db
-      - MYSQL_PORT=3306
       - CONFIG_SERVICE_HOST=configservice
       - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
   gatewayservice:
@@ -175,32 +169,15 @@ services:
       - MONGO_INITDB_DATABASE=blogapp
     volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-  db:
-    image: mysql
-    restart: "unless-stopped"
-    environment:
-      MYSQL_DATABASE: 'blogapp'
-      # So you don't have to use root, but you can if you like
-      MYSQL_USER: 'cokutan'
-      # You can use whatever password you like
-      MYSQL_PASSWORD: '123456'
-      # Password for root access
-      MYSQL_ROOT_PASSWORD: 'password'
-      # MYSQL_ROOT_HOST: '%'
-    ports:
-      # <Port exposed> : < MySQL Port running inside container>
-      - '3307:3306'
-      # Where our data will be persisted
-    volumes:
-      - my-db:/var/lib/mysql
     healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin -h 'localhost' -u root -ppassword ping --silent" ]
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/productiondb --quiet
       interval: 30s
       timeout: 30s
       retries: 3
     networks:
-      - mysql-network
-    # command: --default-authentication-plugin=mysql_native_password
+      mongodb-network:
+        aliases:
+          - mongodb.docker.internal
   keycloak:
     image: jboss/keycloak
     container_name: keycloak
@@ -226,19 +203,11 @@ services:
     ports:
       - 8080:8080
   # Names our volume
-  sonarqube:
-    image: sonarqube:latest
-    ports:
-      - 9000:9000
-    networks:
-      - sonarnet
 volumes:
-  my-db:
   dbdata:
   opensearch-data1:
 networks:
-  mysql-network:
+  mongodb-network:
   opensearch-net:
   keycloak:
-  sonarnet:
   gateway:

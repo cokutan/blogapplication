@@ -28,7 +28,7 @@ spring:
     active: native
   data:
     mongodb:
-      uri: mongodb://cokutan:123456@localhost:27017/blogapp
+      uri: mongodb://cokutan:123456@mongodb.docker.internal:27017/blogapp
   security:
     oauth2:
       resourceserver:
@@ -36,11 +36,11 @@ spring:
           issuer-uri: http://keycloak.docker.internal:8080/auth/realms/blogapp
 
   #Publish Application(Register with Eureka)
-  eureka:
-    client:
-      service-url:
-        default-zone: http://${DISCOVERY_SERVICE_HOST:localhost}:8761/eureka
+eureka:
+  client:
+    service-url:
+      default-zone: http://${DISCOVERY_SERVICE_HOST:localhost}:8761/eureka
   # instance id for eureka server
-    instance:
-      instance-id: ${spring.application.name}:${random.value}
+  instance:
+    instance-id: ${spring.application.name}:${random.value}
 

@@ -16,7 +16,7 @@ management:
 spring:
   data:
     mongodb:
-      uri: mongodb://cokutan:123456@localhost:27017/blogapp
+      uri: mongodb://cokutan:123456@mongodb.docker.internal:27017/blogapp
   security:
     oauth2:
       resourceserver:
