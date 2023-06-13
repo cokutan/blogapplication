@@ -24,6 +24,7 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-common:2.0.2'
 	implementation 'org.opensearch.client:opensearch-rest-high-level-client:2.6.0'
 	implementation 'org.opensearch.client:opensearch-java:2.0.0'
+	implementation 'org.springframework.kafka:spring-kafka'
 	runtimeOnly    'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.retry:spring-retry'

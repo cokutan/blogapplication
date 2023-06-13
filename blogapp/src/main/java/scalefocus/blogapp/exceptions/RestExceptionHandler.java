@@ -1,8 +1,5 @@
 package scalefocus.blogapp.exceptions;
 
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +11,10 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.net.ConnectException;
+
+import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
 @Slf4j
@@ -48,6 +49,14 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 		ApiError apiError = new ApiError(FORBIDDEN);
 		apiError.setMessage(ex.getMessage());
 		log.warn(AN_EXCEPTION_OCCURED_WHICH_WILL_CAUSE_A_RESPONSE, FORBIDDEN, ex);
+		return buildResponseEntity(apiError);
+	}
+
+	@ExceptionHandler(ConnectException.class)
+	protected ResponseEntity<Object> handleConenctionError(ConnectException ex) {
+		ApiError apiError = new ApiError(SERVICE_UNAVAILABLE);
+		apiError.setMessage(ex.getMessage());
+		log.warn(AN_EXCEPTION_OCCURED_WHICH_WILL_CAUSE_A_RESPONSE, SERVICE_UNAVAILABLE, ex);
 		return buildResponseEntity(apiError);
 	}
 

@@ -34,6 +34,35 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://keycloak.docker.internal:8080/auth/realms/blogapp
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093, localhost:9094
+    properties:
+      #Server host name verification is disabled by setting ssl.endpoint.identification.algorithm to an empty string
+      ssl.endpoint.identification.algorithm:
+    ssl:
+      protocol: SSL
+      trust-store-location: classpath:truststore.jks
+      trust-store-password: password
+      key-store-location: classpath:keystore.jks
+      key-store-password: password
+      key-password: password
+    producer:
+      retries: 0
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: opensearch
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            value:
+              default:
+                type: scalefocus.blogapp.domain.Blog
+            packages: scalefocus.blogapp.domain
 
   #Publish Application(Register with Eureka)
 eureka:
