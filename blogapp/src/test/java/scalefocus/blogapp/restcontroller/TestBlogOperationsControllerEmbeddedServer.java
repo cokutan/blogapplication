@@ -22,6 +22,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
+import org.testcontainers.shaded.org.awaitility.Durations;
+import org.testcontainers.utility.DockerImageName;
 import scalefocus.blogapp.containers.MongoDBTestContainer;
 import scalefocus.blogapp.containers.OpenSearchTestContainer;
 import scalefocus.blogapp.domain.Blog;
@@ -64,16 +69,20 @@ class TestBlogOperationsControllerEmbeddedServer {
   @Autowired private BlogUserRepository blogUserRepository;
   @Autowired private OpenSearchClient client;
 
-  private BlogUser blogUser;
+  @Container
+  private static final KafkaContainer kafkaContainer =
+      new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0")).withKraft();
 
-  private String bearerToken;
+  private BlogUser blogUser;
 
   private static final OpenSearchTestContainer openSearchTestContainer =
       new OpenSearchTestContainer();
 
   static {
     openSearchTestContainer.start();
+    kafkaContainer.start();
   }
+
   static {
     MongoDBTestContainer.startInstance();
   }
@@ -82,6 +91,7 @@ class TestBlogOperationsControllerEmbeddedServer {
   static void setDynamicProperties(DynamicPropertyRegistry registry) {
     registry.add("spring.data.mongodb.uri", MongoDBTestContainer.getInstance()::getReplicaSetUrl);
     registry.add("${opensearch.host.port}", () -> openSearchTestContainer.getMappedPort(9200));
+    registry.add("${spring.kafka.bootstrap-servers}", kafkaContainer::getBootstrapServers);
   }
 
   @BeforeEach
@@ -163,6 +173,9 @@ class TestBlogOperationsControllerEmbeddedServer {
   @Test
   void getSearchedBlogs() {
     insertIndexesForOpenSearch();
+
+   waitOneSecond();
+
     Map<String, Integer> params = new HashMap<>();
     params.put("page", 0);
     params.put("size", 10);
@@ -186,6 +199,7 @@ class TestBlogOperationsControllerEmbeddedServer {
                 new ParameterizedTypeReference<List<Blog>>() {},
                 params)
             .getBody();
+
     assertThat(body).hasSize(3);
 
     HttpStatusCode statusCode =
@@ -203,12 +217,16 @@ class TestBlogOperationsControllerEmbeddedServer {
   private void insertIndexesForOpenSearch() {
 
     Blog blog = blogService.createBlog(createNewBlog());
+   waitOneSecond();
     blogService.attachTag(blog.getId(), "Sausage");
     blog = blogService.createBlog(createNewBlog().setBody("Aubergine"));
+   waitOneSecond();
     blogService.attachTag(blog.getId(), "Sausage");
     blog = blogService.createBlog(createNewBlog().setTitle("Aubergine"));
+   waitOneSecond();
     blogService.attachTag(blog.getId(), "Sausage");
     blog = blogService.createBlog(createNewBlog());
+   waitOneSecond();
     blogService.attachTag(blog.getId(), "Aubergine");
   }
 
@@ -221,8 +239,6 @@ class TestBlogOperationsControllerEmbeddedServer {
 
   @Test
   void createBlog() throws IOException {
-    Condition<Blog> nonNullID =
-        new Condition<>(m -> m.getId() != null && m.getId() != "0", "nonNullID");
 
     Blog body =
         restTemplate
@@ -236,6 +252,11 @@ class TestBlogOperationsControllerEmbeddedServer {
                         .setBody("another body")),
                 Blog.class)
             .getBody();
+
+   waitOneSecond();
+
+    Condition<Blog> nonNullID =
+            new Condition<>(m -> m.getId() != null && !"0".equals(m.getId()) , "nonNullID");
     assertThat(body).isNotNull().has(nonNullID);
 
     checkOpenSearch("title", "another title");
@@ -255,6 +276,9 @@ class TestBlogOperationsControllerEmbeddedServer {
         new SearchRequest.Builder()
             .query(q -> q.match(m -> m.field("tags").query(FieldValue.of(tag))))
             .build();
+
+   waitOneSecond();
+
     Blog actual = makeOpenSearch(searchRequest);
     Condition<String> searchedTag = new Condition<>(m -> tag.equals(m), "searchedTag");
     assertThat(actual.getTags()).areAtLeastOne(searchedTag);
@@ -275,11 +299,14 @@ class TestBlogOperationsControllerEmbeddedServer {
     Map<String, String> params = new HashMap<>();
     params.put("id", ID_1);
     restTemplate.exchange(
-        "http://localhost:" + port + "/blogs/"+ID_1,
+        "http://localhost:" + port + "/blogs/" + ID_1,
         HttpMethod.PUT,
         createEntityForRestTemplate(blogU),
         Blog.class,
         params);
+
+   waitOneSecond();
+
     Condition<Blog> updatedBlog =
         new Condition<>(
             m -> "newTitle".equals(m.getTitle()) && "newBody".equals(m.getBody()), "updatedBlog");
@@ -291,8 +318,9 @@ class TestBlogOperationsControllerEmbeddedServer {
   @Test
   void deleteBlog() throws BlogAppEntityNotFoundException, IOException {
     Blog blog =
-        blogService.createBlog(
-            new Blog().setBody("delete").setTitle("delete").setCreatedBy(blogUser)).setId(ID_2);
+        blogService
+            .createBlog(new Blog().setBody("delete").setTitle("delete").setCreatedBy(blogUser))
+            .setId(ID_2);
     Map<String, String> params = new HashMap<>();
     String id = blog.getId();
     params.put("id", id);
@@ -302,8 +330,10 @@ class TestBlogOperationsControllerEmbeddedServer {
         createEntityForRestTemplate(null),
         Blog.class,
         params);
-    Condition<Blog> deletedBlog =
-        new Condition<>(m -> id.equals(m.getId()), "deletedBlog");
+
+   waitOneSecond();
+
+    Condition<Blog> deletedBlog = new Condition<>(m -> id.equals(m.getId()), "deletedBlog");
     assertThat(blogService.getBlogSummaryListForUser("aliveli", 0, 10)).areNot(deletedBlog);
 
     checkOpenSearchForDeletion("id", id);
@@ -332,6 +362,7 @@ class TestBlogOperationsControllerEmbeddedServer {
         ResponseEntity.class,
         params);
 
+   waitOneSecond();
     assertThat(blogService.getBlogsWithTag("My RestController Test Tag")).isNotEmpty();
     checkOpenSearchForBlogTags("My RestController Test Tag");
 
@@ -341,8 +372,15 @@ class TestBlogOperationsControllerEmbeddedServer {
         createEntityForRestTemplate(null),
         ResponseEntity.class,
         params);
+
+    waitOneSecond();
+
     assertThat(blogService.getBlogsWithTag("My RestController Test Tag")).isEmpty();
     checkOpenSearchForDeletion("blogtags.tag", "My RestController Test");
+  }
+
+  private static void waitOneSecond() {
+    Awaitility.await().pollDelay(Durations.ONE_SECOND).until(() -> true);
   }
 
   private <T> HttpEntity<T> createEntityForRestTemplate(T body) {
@@ -355,5 +393,6 @@ class TestBlogOperationsControllerEmbeddedServer {
   @AfterAll
   public static void afterAll() {
     openSearchTestContainer.stop();
+    kafkaContainer.stop();
   }
 }

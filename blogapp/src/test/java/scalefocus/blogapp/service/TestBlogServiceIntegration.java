@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import org.assertj.core.api.Condition;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +12,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import scalefocus.blogapp.containers.MongoDBTestContainer;
 import scalefocus.blogapp.containers.OpenSearchTestContainer;
 import scalefocus.blogapp.domain.Blog;
@@ -33,22 +37,25 @@ class TestBlogServiceIntegration {
   private static final OpenSearchTestContainer openSearchTestContainer =
       new OpenSearchTestContainer();
 
+  @Container
+  private static final KafkaContainer kafkaContainer =
+      new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0")).withKraft();
+
   static {
     openSearchTestContainer.start();
+    kafkaContainer.start();
+    MongoDBTestContainer.startInstance();
   }
 
   @Autowired private BlogRepository blogRepository;
 
   private final BlogUser blogUser = new BlogUser().setUsername("aliveli");
 
-  static {
-    MongoDBTestContainer.startInstance();
-  }
-
   @DynamicPropertySource
   static void mongoDbProperties(DynamicPropertyRegistry registry) {
     registry.add("spring.data.mongodb.uri", MongoDBTestContainer.getInstance()::getReplicaSetUrl);
     registry.add("${opensearch.host.port}", () -> openSearchTestContainer.getMappedPort(9200));
+    registry.add("${spring.kafka.bootstrap-servers}", kafkaContainer::getBootstrapServers);
   }
 
   @Test
@@ -116,5 +123,11 @@ class TestBlogServiceIntegration {
     blogService.unattachTag(ID_3, "Third Tag");
     Blog blog = blogRepository.findById(ID_3).get();
     assertThat(blog.getTags()).isEmpty();
+  }
+
+  @AfterAll
+  public static void afterAll() {
+    openSearchTestContainer.stop();
+    kafkaContainer.stop();
   }
 }

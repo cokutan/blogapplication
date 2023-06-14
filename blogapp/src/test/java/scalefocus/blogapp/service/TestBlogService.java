@@ -15,8 +15,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.ActiveProfiles;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogUser;
-import scalefocus.blogapp.events.BlogCreatedEvent;
-import scalefocus.blogapp.events.BlogDeletedEvent;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.repository.opensearch.BlogOpenSearchRepository;
 import scalefocus.blogapp.repository.sqldb.BlogRepository;
@@ -33,9 +31,7 @@ class TestBlogService {
 
   @Mock BlogRepository blogRepository;
 
-  @Mock ApplicationEventPublisher applicationEventPublisher;
-
-  @Mock BlogOpenSearchRepository blogOpenSearchRepository;
+  @Mock KafkaProducerService kafkaProducerService;
 
   private final BlogUser blogUser = new BlogUser().setUsername("aliveli");
 
@@ -45,7 +41,6 @@ class TestBlogService {
     blog.setId("2");
     blog.setCreatedBy(blogUser);
     when(blogRepository.save(any())).thenReturn(blog);
-
     when(blogUserRepository.findFirstByUsername("aliveli"))
         .thenReturn(Optional.ofNullable(blogUser));
 
@@ -54,7 +49,7 @@ class TestBlogService {
             new Blog().setCreatedBy(blogUser).setTitle("title_test").setBody("body_test"));
 
     assertThat(createdBlog).hasFieldOrPropertyWithValue("id", "2"); // implies "data" was persisted
-    verify(applicationEventPublisher, atLeastOnce()).publishEvent(any(BlogCreatedEvent.class));
+    verify(kafkaProducerService, atLeastOnce()).sendCreateMessage(createdBlog);
   }
 
   @Test
@@ -78,6 +73,7 @@ class TestBlogService {
     assertThat(updatedBlog)
         .hasFieldOrPropertyWithValue("body", "body_test")
         .hasFieldOrPropertyWithValue("title", "title_test");
+    verify(kafkaProducerService, atLeastOnce()).sendUpdateMessage(updatedBlog);
   }
 
   @Test
@@ -96,7 +92,7 @@ class TestBlogService {
     blogRepository.delete(blog);
 
     blogService.deleteBlog("1");
-    verify(applicationEventPublisher, atLeastOnce()).publishEvent(any(BlogDeletedEvent.class));
+    verify(kafkaProducerService, atLeastOnce()).sendDeleteMessage(any());
   }
 
   @Test
@@ -107,6 +103,7 @@ class TestBlogService {
     blogService.unattachTag("1", "tag");
 
     assertThat(blog.getTags()).isEmpty();
+    verify(kafkaProducerService, atLeastOnce()).sendUpdateMessage(any());
   }
 
   @Test
@@ -114,10 +111,7 @@ class TestBlogService {
       throws BlogAppEntityNotFoundException {
     when(blogRepository.findById("1")).thenReturn(Optional.empty());
 
-    assertThatThrownBy(
-            () -> {
-              blogService.unattachTag("1", "tag");
-            })
+    assertThatThrownBy(() -> blogService.unattachTag("1", "tag"))
         .isInstanceOf(BlogAppEntityNotFoundException.class);
   }
 
@@ -129,6 +123,7 @@ class TestBlogService {
     blogService.attachTag("1", "tag");
 
     assertThat(blog.getTags().get(0)).isEqualTo("tag");
+    verify(kafkaProducerService, atLeastOnce()).sendUpdateMessage(any());
   }
 
   @Test

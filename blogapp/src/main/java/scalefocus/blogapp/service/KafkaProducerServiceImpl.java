@@ -11,23 +11,23 @@ import scalefocus.blogapp.domain.Blog;
 @RequiredArgsConstructor
 public class KafkaProducerServiceImpl implements KafkaProducerService {
 
-    private final KafkaTemplate<String, Blog> kafkaTemplate;
+  private final KafkaTemplate<String, Blog> kafkaTemplate;
 
-    @Override
-    public void sendCreateMessage(Blog blog) {
-        log.info("create message sent to kafka: {}", blog);
-        kafkaTemplate.send("createBlog", blog);
-    }
+  @Override
+  public void sendCreateMessage(Blog blog) {
+    log.info("create message sent to kafka: {}", blog);
+    kafkaTemplate.send("createBlog", blog.getId(), blog);
+  }
 
-    @Override
-    public void sendUpdateMessage(Blog blog) {
-        log.info("update message sent to kafka: {}", blog);
-        kafkaTemplate.send("updateBlog", blog);
-    }
+  @Override
+  public void sendUpdateMessage(Blog blog) {
+    log.info("update message sent to kafka: {}", blog);
+    kafkaTemplate.send("updateBlog", blog.getId(), blog);
+  }
 
-    @Override
-    public void sendDeleteMessage(Blog blog) {
-        log.info("message sent to kafka: {}", blog);
-        kafkaTemplate.send("deleteBlog", blog);
-    }
+  @Override
+  public void sendDeleteMessage(Blog blog) {
+    log.info("message sent to kafka: {}", blog);
+    kafkaTemplate.send("deleteBlog", blog.getId(), blog);
+  }
 }
