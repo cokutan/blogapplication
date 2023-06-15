@@ -64,6 +64,7 @@ services:
       - SPRING_PROFILES_ACTIVE=native
       - ELASTIC_HOST=opensearch-node1
       - CONFIG_SERVICE_HOST=configservice
+      - SPRING_KAFKA_BOOTSTRAP-SERVERS= kafka1:29092, kafka2:29092, kafka3:29092
       - SPRING_APPLICATION_JSON={"eureka":{"client":{"serviceUrl":{"defaultZone":"http://discoveryservice:8761/eureka"}}}}
   blogapp-webflux:
     build: blogapp-webflux
