@@ -20,14 +20,17 @@ spring:
       default-filters:
         - TokenRelay
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+      discovery:
+        locator:
+          enabled: true
       routes:
-      - id: userOperations
-        uri: http://${USER_OPERATIONS_HOST:localhost}:9010
+      - id: blogapp-usermanagement
+        uri: lb://blogapp-usermanagement
         predicates:
           - Path=/usermanagement/**
         filters:
           - RewritePath=/usermanagement/(?<path>.*), /$\{path}
-      - id: fileOperations
+      - id: blogapp-webflux
         uri: lb://blogapp-webflux
         predicates:
           - Path=/file/**
@@ -39,8 +42,8 @@ spring:
               redis-rate-limiter.burstCapacity: 20
               redis-rate-limiter.requestedTokens: 1
               deny-empty-key: 'false'
-      - id: blogOperations
-        uri: http://${BLOG_OPERATIONS_HOST:localhost}:9009
+      - id: blogapp
+        uri: lb://blogapp
         predicates:
           - Path=/blogapp/**
         filters:

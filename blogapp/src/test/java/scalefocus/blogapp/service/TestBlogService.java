@@ -11,14 +11,12 @@ import org.junit.platform.commons.annotation.Testable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.ActiveProfiles;
 import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
-import scalefocus.blogapp.repository.opensearch.BlogOpenSearchRepository;
-import scalefocus.blogapp.repository.sqldb.BlogRepository;
-import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
+import scalefocus.blogapp.repository.BlogRepository;
+import scalefocus.blogapp.repository.BlogUserRepository;
 
 @Testable
 @ActiveProfiles("test")

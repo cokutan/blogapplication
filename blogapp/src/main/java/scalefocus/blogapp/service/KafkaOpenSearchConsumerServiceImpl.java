@@ -11,7 +11,7 @@ import scalefocus.blogapp.repository.opensearch.BlogOpenSearchRepository;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class KafkaConsumerServiceImpl implements KafkaConsumerService {
+public class KafkaOpenSearchConsumerServiceImpl implements KafkaOpenSearchConsumerService {
 
   private final BlogOpenSearchRepository blogOpenSearchRepository;
 

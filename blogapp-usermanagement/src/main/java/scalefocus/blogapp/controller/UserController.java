@@ -22,16 +22,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import scalefocus.blogapp.clients.UserClient;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.domain.RegisterRequest;
-import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
+import scalefocus.blogapp.service.KafkaProducerService;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
-
-  private final BlogUserRepository userRepository;
 
   @Value("${keycloak.auth-server-url}")
   private String keycloakBaseUrl;
@@ -45,13 +44,15 @@ public class UserController {
   @Value("${keycloak.client-secret}")
   private String keycloakClientSecret;
 
-  private RestTemplate restTemplate;
+  private final UserClient userClient;
+  private final RestTemplate restTemplate;
+  private final KafkaProducerService kafkaProducerService;
 
   @Autowired
-  public UserController(
-      BlogUserRepository blogUserRepository, RestTemplateBuilder restTemplateBuilder) {
-    this.userRepository = blogUserRepository;
+  public UserController(UserClient userClient, RestTemplateBuilder restTemplateBuilder, KafkaProducerService kafkaProducerService) {
+    this.userClient = userClient;
     this.restTemplate = restTemplateBuilder.build();
+    this.kafkaProducerService = kafkaProducerService;
   }
 
   @PostMapping("/register")
@@ -67,7 +68,7 @@ public class UserController {
       })
   public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
 
-    if (userRepository.existsByUsername(registerRequest.getUsername())) {
+    if (userClient.existsByUsername(registerRequest.getUsername())) {
       return ResponseEntity.of(
               ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "User name already exists!"))
           .build();
@@ -100,10 +101,11 @@ public class UserController {
                   HttpStatus.CONFLICT, "Username already defined in Keycloak"))
           .build();
     }
-    userRepository.save(
+    BlogUser blogUser =
         new BlogUser()
             .setDisplayname(registerRequest.getDisplayname())
-            .setUsername(registerRequest.getUsername()));
+            .setUsername(registerRequest.getUsername());
+    kafkaProducerService.sendUserCreatedMessage(blogUser);
 
     return ResponseEntity.ok().build();
   }

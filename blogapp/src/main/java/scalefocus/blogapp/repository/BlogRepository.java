@@ -1,4 +1,4 @@
-package scalefocus.blogapp.repository.sqldb;
+package scalefocus.blogapp.repository;
 
 import java.util.List;
 import org.springframework.data.domain.Pageable;

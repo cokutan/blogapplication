@@ -1,4 +1,4 @@
-package scalefocus.blogapp.repository.sqldb;
+package scalefocus.blogapp.repository;
 
 import java.math.BigInteger;
 import java.util.Optional;

@@ -20,8 +20,8 @@ import scalefocus.blogapp.domain.Blog;
 import scalefocus.blogapp.domain.BlogUser;
 import scalefocus.blogapp.exceptions.BlogAppEntityNotFoundException;
 import scalefocus.blogapp.exceptions.UserNotAuthorizedForOperation;
-import scalefocus.blogapp.repository.sqldb.BlogRepository;
-import scalefocus.blogapp.repository.sqldb.BlogUserRepository;
+import scalefocus.blogapp.repository.BlogRepository;
+import scalefocus.blogapp.repository.BlogUserRepository;
 import scalefocus.blogapp.service.BlogService;
 
 @RestController
@@ -44,6 +44,24 @@ public class BlogOperationsRestController {
   private final BlogService blogService;
   private final BlogRepository blogRepository;
   private final BlogUserRepository blogUserRepository;
+
+  @GetMapping("/validuser/{username}")
+  @Operation(
+      summary = "Returns true is username already exists in db false otherwise",
+      tags = {"users"},
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Succesfully retrieved",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = Boolean.class))),
+        @ApiResponse(responseCode = "500", content = @Content)
+      })
+  public Boolean existsByUsername(@PathVariable("username") String username) {
+    return blogUserRepository.existsByUsername(username);
+  }
 
   @GetMapping(value = "/users/{username}/blogs")
   @Operation(
